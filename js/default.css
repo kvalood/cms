@@ -1,0 +1,68 @@
+*:focus {outline: 0;}
+.feed_back_poup{display:none;position: fixed;z-index: 510;top: 50%;background: white;border-radius: 0px;width: 250px;min-height: 140px;padding: 0px 10px 10px;left:50%;}
+.modal_background{position: fixed;animation: 0.2s ease 0s normal none 1 all;display: none;width: 100%;height: 100%;top: 0px;left: 0px;background: #000;opacity: 0.7;z-index: 500;}
+
+/*Форма обратной связи.*/
+.feed_back{}
+.feed_back_poup h2{font:20px/19px "Segoe UI",Arial;margin:10px 0;color:#303030}
+.feed_back label{width: 53px;display: inline-block;vertical-align: top;font-size: 12px;line-height: 23px;}
+.feed_back input[type="text"],.feed_back textarea{border: 1px solid #CFCFCF;padding: 2px 4px;font: 13px/15px Arial;}
+.feed_back input[type="text"]{width: 182px;}
+.feed_back textarea{resize: none;width: calc(100% - 11px);display: block;}
+.feed_back > div{display: block;width: 100%;overflow: hidden;margin-bottom: 4px;border-bottom: 1px solid #EFEFEF;padding: 2px 0px 6px;}
+.feedback_send_button{width: 100%;margin-top: 3px;padding: 3px 0px;background: #409744;color: white;border: none;cursor: pointer;}
+.feedback_send_button:hover{background: #60B764;}
+.feed_back_close{position: absolute;right: -12px;height: 22px;width: 22px;background: #000;color: white;text-align: center;font: 17px/20px Arial;border-radius: 30px;border: 2px solid #FFF;top: -12px;cursor: pointer;z-index: 2;}
+
+/*message contact form*/
+/*position modal show message*/
+.modal_message{position: fixed;z-index: 520;}
+.modal_message.top-right{top: 20px;right: 20px;}
+.modal_message.top-left{top: 20px;left: 20px;}
+.modal_message.bottom-right{bottom: 20px;right: 20px;}
+.modal_message.bottom-left{bottom: 20px;left: 20px;}
+
+.show_message.message{/*background: #60B764;*/background: #6AB543;}
+.show_message.error{background: #E54028;}
+.show_message.notice{background: #F18D05;}
+.show_message.black{background: #000000;}
+.show_message.message,.show_message.error,.show_message.notice,.show_message.black{overflow: hidden;margin-bottom: 10px;position: relative;color: white;display: block;width: 240px;padding: 7px 0px 7px 10px;font-size: 13px;font-family: arial;}
+
+.close_message_icons{width: 20px;height: 100%;cursor: pointer;float: right;margin-right: 8px;font-size: 16px;text-align: center;margin-top: -1px;}
+.text_modal{float: left;width: 210px;}
+.text_modal a{color:white;text-decoration:underline;}
+.text_modal b{color:white;}
+
+/*autocomplete finder product*/
+.autocomplete-suggestions{background-color: #ffffff; width: 340px !important;font:100 12px 'Segoe UI';border: 1px solid #e0e0e0;overflow-y: scroll;padding: 3px 5px;max-height: none !important;}
+.autocomplete-suggestions .autocomplete-suggestion{cursor: pointer;display: block;margin: 2px 0px;padding: 0px 0px 0px 4px;}
+.autocomplete-suggestions .autocomplete-suggestion:hover{background: #FFEF9F;}
+.autocomplete-suggestions .selected { background:#F0F0F0; }
+.autocomplete-suggestions strong { font-weight:bold; }
+.name_and_currency {overflow: hidden;}
+.name_and_currency .name_product {float: left;}
+.name_and_currency .sale, .name_and_currency .normal {float: right;width: 60px;padding: 0px 4px;}
+.name_and_currency .sale{background: #FFEEAD;border: 1px solid #F7E6A5;}
+.name_and_currency .normal{background: #D0E7EF;border: 1px solid #CBE2EA;}
+
+/***СОРТИРОВКА (Иконки, как отображать товары, списком или блоками***/
+.show_type {position: absolute;right: 13px;top: 2px;}
+.show_type #list{width:18px;height:13px;float: left;}
+.show_type #list > *{float: left;background:#454545;}
+.show_type #list .l_le{width:5px;height:3px;}
+.show_type #list .l_re{width:11px;height:3px;margin-left: 2px;margin-bottom: 2px;}
+.show_type #box{width:17px;height:15px;float: left;margin-left: 11px;}
+.show_type #box > *{float: left;background:#454545;}
+.show_type #box .bv{width:7px;height:5.5px;}
+.show_type #box .bt{width:7px;height:5.5px;margin-left: 2.5px;margin-bottom: 2.5px;}
+.show_type #list:hover,.show_type #box:hover{opacity:0.6;}
+.show_type #list,.show_type #box{transition-duration: 0.2s;cursor:pointer;}
+
+/*** Poup ***/
+.fix_b{position: fixed;overflow-y: scroll;}
+.poup-background{z-index:1;width: 100%;}
+.poup-close{position:absolute;top:-13px;width:23px;height:23px;right:-11px;cursor:pointer;background:url(poup-button-close.png) no-repeat;z-index: 2;}
+.more-poup{text-align: center;padding-bottom:20px;display:none;position:fixed;height:100%;width:100%;top:0;left:0;z-index:500;background: url(poup-background.png) repeat rgba(255,255,255,0.8);}
+#spiner_modal{padding:0;position:absolute;top:0;left:0;right:0;bottom:0;margin:0;border:0;z-index: 1;visibility: hidden}
+.poup-background {z-index: 1;width: 100%;position: absolute;}
+.poup-data{top: 20px;bottom: 20px;position:relative;z-index:2;display: inline-block;vertical-align: top;text-align: left;width: 800px;background: #FFF;box-shadow: 0px 0px 15px #C6C6C6, 0px 0px 10px #F2F2F2 inset;padding: 20px;visibility: hidden;}

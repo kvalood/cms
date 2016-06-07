@@ -1,0 +1,80 @@
+# сжатие text, html, javascript, css, xml:
+<ifModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/html text/plain text/xml application/xml application/xhtml+xml text/css text/javascript application/javascript application/x-javascript
+</ifModule>
+
+
+#Системные настройки
+#При удалении всех товаров, выводило ошибку.
+php_value max_input_vars 3000
+
+#END
+
+AddDefaultCharset UTF-8
+ErrorDocument 404 /404
+ErrorDocument 401 /password.php
+RewriteEngine on
+
+# Каталог товаров
+RewriteRule ^catalog/([^/]+)/?$	index.php?module=ProductsView&category=$1 [L,QSA]
+RewriteRule ^catalog/([^/]+)/([^/]+)/?$	index.php?module=ProductsView&category=$1&brand=$2 [L,QSA]
+
+RewriteRule ^products/([^/]+)/?$	index.php?module=ProductView&product_url=$1 [L,QSA]
+RewriteRule ^products/?$	index.php?module=ProductsView [L,QSA]
+
+RewriteRule ^brands/([^/]+)/?$	index.php?module=ProductsView&brand=$1 [L,QSA]
+RewriteRule ^brands/([^/]+)/page_([^/]+)/?$	index.php?module=ProductsView&brand=$1&page=$2 [L,QSA]
+
+# Поиск товаров
+RewriteRule ^search/([^/]+)/?$	index.php?module=ProductsView&keyword=$1 [L,QSA]
+RewriteRule ^search/?$	index.php?module=ProductsView [L,QSA]
+
+# Корзина и заказы
+RewriteRule ^cart/?$	index.php?module=CartView   [L,QSA]
+RewriteRule ^cart/([^/]+)/?$	index.php?module=CartView&add_variant=$1  [L,QSA]
+RewriteRule ^cart/remove/([^/]+)/?$	index.php?module=CartView&delete_variant=$1  [L,QSA]
+RewriteRule ^order/([^/]+)/?$	index.php?module=OrderView&url=$1  [L,QSA]
+RewriteRule ^order/?$	index.php?module=OrderView  [L,QSA]
+
+# Sitemap
+RewriteRule ^sitemap.xml?$	sitemap.php  [L,QSA]
+
+# HTML Sitemap
+RewriteRule ^sitemap?$	index.php?module=SitemapView  [L,QSA]
+
+# XML
+RewriteRule ^yandex.xml?$	yandex.php  [L,QSA]
+RewriteRule ^google.xml?$	google.php  [L,QSA]
+
+# Контакты. Если нужна форма обратной связи, то раскомментить следующую строчку. Контакты хранятся в feedback.tpl
+RewriteRule ^register/?$	index.php?module=FeedbackView  [L,QSA]
+
+
+#downloads
+RewriteRule ^order/([^/]+)/([^/]+)/?$	index.php?module=OrderView&url=$1&file=$2  [L,QSA]
+
+# Для пользователей
+RewriteRule ^user/login/?$	index.php?module=LoginView  [L,QSA]
+RewriteRule ^user/register/?$	index.php?module=RegisterView  [L,QSA]
+RewriteRule ^user/logout/?$	index.php?module=LoginView&action=logout  [L,QSA]
+RewriteRule ^user/password_remind/?$	index.php?module=LoginView&action=password_remind  [L,QSA]
+RewriteRule ^user/password_remind/([0-9a-z]+)/?$	index.php?module=LoginView&action=password_remind&code=$1  [L,QSA]
+RewriteRule ^user/?$	index.php?module=UserView  [L,QSA]
+
+#########################
+#Absorber 2014
+#########################
+RewriteRule ^/?$ index.php?module=MenuView [L,QSA]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^/]*)/?$ index.php?module=MenuView&r_1=$1 [L,QSA]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^/]+)/([^/]+)/?$ index.php?module=MenuView&r_1=$1&r_2=$2 [L,QSA]
+
+# Ресайз картинок на лету
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^files/products/(.+) resize/resize.php?file=$1&token=%{QUERY_STRING}
+#RewriteCond %{THE_REQUEST} ^GET\ (.*)files/products/(.*)\?([A-z0-9]*) 
+#RewriteRule ^files/products/(.+) resize/resize.php?file=%2&token=%3 [L,NE]

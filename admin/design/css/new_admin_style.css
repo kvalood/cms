@@ -1,0 +1,416 @@
+body, html{
+    font-family: 'PT Sans', sans-serif;
+    background: #EEF3F8;
+}
+
+.content input[type="text"], .content textarea, .content input[type="password"] {
+    box-sizing: border-box;
+    border: 1px solid #E0E0E0;
+    border-radius: 3px;
+    height: 32px;
+    padding: 0 0.75em !important;
+    width: 100%;
+}
+
+
+/* Шапка */
+header {
+    overflow: hidden;
+    background: #2B394A;
+    padding: 10px 0;
+    color: #FFF;
+}
+
+.logo{
+    font-size: 1.3em;
+    font-weight: 100;
+    padding: 0.15em;
+}
+
+.logo > i{
+    margin-right: 10px;
+}
+
+/* Поиск в шапке */
+.search_box {
+    position: relative;
+}
+
+.search_box i{
+    position: absolute;
+    top: 8px;
+    left: 26px;
+    color: #728090;
+    font-size: 1em;
+}
+
+.search_box input:focus {
+    width: 280px;
+    outline: medium none;
+}
+
+.search_box input {
+    width: 200px;
+    border: 0 none;
+    border-radius: 4px;
+    padding: 7px 10px 7px 41px;
+    background: #404E65;
+    color: #E1EFFF;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: width 0.1s ease 0s;
+    box-shadow: none;
+}
+
+/* Ссылки в шапке */
+.header_links{
+    margin-top: 6px;
+    font-size: 0.9em;
+}
+
+.header_links a{
+    color: #fff;
+}
+.header_links a span{
+    text-decoration: none;
+    color: #FFF;
+    border-radius: 3px;
+    padding: 3px 11px;
+    font-size: 0.85em;
+    font-weight: 400;
+    margin-left: 4px;
+}
+
+.admin_profile {
+    margin: 3px 0;
+}
+
+/* Административное меню */
+.admin_menu{
+    background: #546474;
+    color: #fff;
+}
+
+.list_menu{
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+.item__menu{
+    position: relative;
+    flex: 1 1 100%;
+    border-left: 1px solid #6D7A92;
+}
+
+.item__menu.active{
+    background: #6D7A92;
+}
+
+.item__menu:last-of-type{
+    border-right: 1px solid #6D7A92;
+}
+
+.item__menu > ul{
+    display: none;
+    position: absolute;
+    text-align: center;
+    width: calc(100% + 2px);
+    background: #fff;
+    border: 1px solid #D8E8F3;
+    margin: 0 -1px;
+    padding: 6px 0;
+    z-index: 9;
+    border-radius: 0 0 4px 4px;
+}
+
+.item__menu.open > ul{
+    display: block;
+}
+
+.item__menu ul li{
+
+}
+
+.item__menu ul li.separator{
+    margin: 6px 0;
+    height: 1px;
+    background: #D8E8F3;
+}
+
+.item__menu ul a{
+    display: block;
+    font-size: 0.9em;
+    padding: 0.3em;
+    transition:  0.15s all;
+}
+
+.item__menu ul a:hover{
+    background: #F3F5F8;
+}
+
+.menu-item__title{
+    text-align: center;
+    padding: 1em 0;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+
+/* Контентная часть */
+.content{
+    margin: 20px 0;
+    width: 100%;
+    background: #fff;
+    padding: 7px 15px 15px;
+    border-radius: 4px;
+}
+
+.content_header {
+    overflow: hidden;
+    margin-bottom: 1.5em;
+}
+
+.content_header h1 {
+    font-weight: 600;
+    font-size: 1.2em;
+    display: inline-block;
+    vertical-align: top;
+    margin: 0;
+}
+
+.content_header h1 span {
+    font-weight: normal;
+    margin: 0 10px;
+}
+
+.content_header .buttons{
+    float:right;
+}
+
+.block{
+    display: block;
+}
+
+.block h2{
+    font-size: 1em;
+    line-height: 16px;
+    color: #2F2F2F;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+    border-bottom: 2px solid #eef3f8;
+    padding-bottom: 7px;
+}
+
+.content label {
+    font-size: 0.9em;
+    margin-bottom: 3px;
+    display: block;
+    color: #888A8D;
+}
+
+.content label.required:before{
+    content: '*';
+    color: red;
+    font-size: 20px;
+    line-height: 0;
+    display: inline-block;
+    vertical-align: top;
+    padding: 12px 4px 0 0;
+    font-weight: bold;
+}
+
+.block li{
+    margin-bottom: 10px;
+}
+
+.block ul{
+    margin-bottom: 50px;
+}
+
+.block li img{
+    max-width: 100%;
+}
+
+/* Список */
+.header_list{
+    font-size: 0.9em;
+    font-weight: bold;
+    background: #546474;
+    color: #fff;
+    margin: 0;
+}
+
+.header_list .col{
+    padding: 10px 15px;
+    border-left: 1px solid #6D7A92
+}
+
+.header_list .col:first-of-type{
+    border: none;
+}
+
+.list_items{
+    border-bottom: 1px solid #D8E8F3;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.list_items .control{
+    text-align: center;
+}
+
+.list_item:nth-of-type(2n){
+    background: #F3F5F8;
+}
+
+.list_item{
+    margin: 0;
+    border-bottom: 1px solid #D8E8F3;
+}
+
+.list_item:last-of-type{
+    border: none;
+}
+
+.list_item .col{
+    min-height: 30px;
+    border-left: 1px solid #D8E8F3;
+    padding: 4px 15px;
+}
+.list_item .col:last-of-type{
+    border-right: 1px solid #D8E8F3;
+}
+
+.list_item .link{
+    font-size: 0.9em;
+    color: #3A70A4;
+    text-decoration: underline;
+}
+
+/* футер */
+footer{
+    color: #A1AFBF;
+    font-size: 0.8em;
+    padding: 0 0 20px 0;
+}
+
+/* Кнопки */
+.button{
+    border: 0 none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    vertical-align: top;
+    color: #FFF;
+    border-radius: 3px;
+    padding: 0 11px;
+    font-weight: 400;
+    margin: 0;
+    font-size: 13px;
+    box-sizing: border-box;
+    height: 27px;
+    line-height: 26px;
+}
+
+.button:hover {
+    opacity: 0.8
+}
+
+.button.save {
+}
+
+.button.delete {
+}
+
+.button.back{
+}
+
+.button[disabled] {
+    background: #000 !important;
+    opacity: 0.2;
+}
+
+/* Общие стили для кнопок */
+.green, .button.save {
+    background-color: #3AA466;
+}
+
+.red, .button.delete {
+    background-color: #D54F5D;
+}
+
+.blue, .button.back {
+    background-color: #3A70A4;
+}
+
+.yellow {
+    background-color: #E0A855;
+}
+
+
+
+/* Левая колонка, list-group */
+.list-group{
+    margin-bottom: 40px;
+}
+.list-group > li > a{
+    padding: 10px 15px;
+    display: block;
+    font-size: 0.9em;
+}
+.list-group > li{
+    position: relative;
+    margin-bottom: -1px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+}
+.list-group > li.active{
+    background: #ECEEF1
+}
+.list-group > li:first-child{
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+.list-group > li:last-child {
+    margin-bottom: 0;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+
+
+
+
+
+
+
+/** АДАПТИВНОСТЬ **/
+@media only screen and (max-width: 1199px) {
+
+
+}
+
+@media only screen and (max-width: 991px) {
+
+    .mobile_menu a{
+        color: #fff;
+        font-size: 35px;
+        line-height: 0;
+    }
+
+}
+
+@media screen and (max-width:767px ) {
+
+
+
+}
+
+@media screen and (max-width:460px ){
+
+    .bth {
+        width: 100%;
+    }
+
+}

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<name>
+		w1
+	</name>
+	<settings>
+		<variable>WMI_MERCHANT_ID</variable>
+		<name>Номер кошелька</name>
+	</settings>
+	<settings>
+		<variable>WMI_CURRENCY_ID</variable>
+		<name>Идентификатор валюты (ISO 4217)</name>
+		<options>
+			<name>Российские рубли</name>
+			<value>643</value>
+		</options>
+		<options>
+			<name>Южно-Африканские ранды</name>
+			<value>710</value>
+		</options>
+		<options>
+			<name>Американские доллары</name>
+			<value>840</value>
+		</options>
+		<options>
+			<name>Украинские гривны</name>
+			<value>980</value>
+		</options>
+		<options>
+			<name>Казахстанские тенге</name>
+			<value>398</value>
+		</options>
+	</settings>
+	<settings>	
+		<variable>WMI_SIGNATURE</variable>
+		<name>Секретный ключ (если нужно)</name>
+	</settings>	
+</module>

@@ -1,0 +1,5 @@
+AddType application/octet-stream csv
+AuthName "Login"
+AuthType Basic
+AuthUserFile C:\SERVER\domains\cms/admin/.passwd
+require valid-user

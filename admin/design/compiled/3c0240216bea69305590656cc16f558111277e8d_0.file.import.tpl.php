@@ -1,9 +1,47 @@
-{$meta_title='Импорт товаров' scope=parent}
+<?php /* Smarty version 3.1.24, created on 2015-07-15 14:46:53
+         compiled from "admin/design/html/import.tpl" */ ?>
+<?php
+/*%%SmartyHeaderCode:2301655a5e5bd0eaf81_74977203%%*/
+if(!defined('SMARTY_DIR')) exit('no direct access allowed');
+$_valid = $_smarty_tpl->decodeProperties(array (
+  'file_dependency' => 
+  array (
+    '3c0240216bea69305590656cc16f558111277e8d' => 
+    array (
+      0 => 'admin/design/html/import.tpl',
+      1 => 1436935611,
+      2 => 'file',
+    ),
+  ),
+  'nocache_hash' => '2301655a5e5bd0eaf81_74977203',
+  'variables' => 
+  array (
+    'config' => 0,
+    'filename' => 0,
+    'message_error' => 0,
+    'import_files_dir' => 0,
+    'locale' => 0,
+  ),
+  'has_nocache_code' => false,
+  'version' => '3.1.24',
+  'unifunc' => 'content_55a5e5bd13d014_46107081',
+),false);
+/*/%%SmartyHeaderCode%%*/
+if ($_valid && !is_callable('content_55a5e5bd13d014_46107081')) {
+function content_55a5e5bd13d014_46107081 ($_smarty_tpl) {
 
-<script src="{$config->root_url}/admin/design/js/piecon/piecon.js"></script>
-<script>
-{if $filename}
-{literal}
+$_smarty_tpl->properties['nocache_hash'] = '2301655a5e5bd0eaf81_74977203';
+$_smarty_tpl->tpl_vars['meta_title'] = new Smarty_Variable('Импорт товаров', null, 1);
+if ($_smarty_tpl->parent != null) $_smarty_tpl->parent->tpl_vars['meta_title'] = clone $_smarty_tpl->tpl_vars['meta_title'];?>
+
+<?php echo '<script'; ?>
+ src="<?php echo $_smarty_tpl->tpl_vars['config']->value->root_url;?>
+/admin/design/js/piecon/piecon.js"><?php echo '</script'; ?>
+>
+<?php echo '<script'; ?>
+>
+<?php if ($_smarty_tpl->tpl_vars['filename']->value) {?>
+
 	
 	var in_process=false;
 	var count=1;
@@ -50,9 +88,10 @@
         		}  				
 		});
 	} 
-{/literal}
-{/if}
-</script>
+
+<?php }?>
+<?php echo '</script'; ?>
+>
 
 <style>
 	.ui-progressbar-value { background-color:#b4defc; background-image: url(design/images/progress.gif); background-position:left; border-color: #009ae2;}
@@ -62,37 +101,48 @@
 
 
 
-<div class="content_header">
+<div class="capture_head">
     <div id="header">
-        <h1>Импорт {if $filename}{$filename|escape}{/if}</h1>
+        <h1>Импорт <?php if ($_smarty_tpl->tpl_vars['filename']->value) {
+echo htmlspecialchars($_smarty_tpl->tpl_vars['filename']->value, ENT_QUOTES, 'UTF-8', true);
+}?></h1>
     </div>
 </div>
 
 
-{if $message_error}
+<?php if ($_smarty_tpl->tpl_vars['message_error']->value) {?>
 <div class="message_box message_error">
 	<span class="text">
-	{if $message_error == 'no_permission'}Установите права на запись в папку {$import_files_dir}
-	{elseif $message_error == 'convert_error'}Не получилось сконвертировать файл в кодировку UTF8
-	{elseif $message_error == 'locale_error'}На сервере не установлена локаль {$locale}, импорт может работать некорректно
-	{else}{$message_error}{/if}
+	<?php if ($_smarty_tpl->tpl_vars['message_error']->value == 'no_permission') {?>Установите права на запись в папку <?php echo $_smarty_tpl->tpl_vars['import_files_dir']->value;?>
+
+	<?php } elseif ($_smarty_tpl->tpl_vars['message_error']->value == 'convert_error') {?>Не получилось сконвертировать файл в кодировку UTF8
+	<?php } elseif ($_smarty_tpl->tpl_vars['message_error']->value == 'locale_error') {?>На сервере не установлена локаль <?php echo $_smarty_tpl->tpl_vars['locale']->value;?>
+, импорт может работать некорректно
+	<?php } else {
+echo $_smarty_tpl->tpl_vars['message_error']->value;
+}?>
 	</span>
 </div>
-{/if}
+<?php }?>
 
 <div class="board_content">
-{if $message_error != 'no_permission'}
-	{if $filename}
+<?php if ($_smarty_tpl->tpl_vars['message_error']->value != 'no_permission') {?>
+	<?php if ($_smarty_tpl->tpl_vars['filename']->value) {?>
 	<div id='progressbar'></div>
 	<ul id='import_result'></ul>
-	{else}
+	<?php } else { ?>
         <div class="block">
             <form method=post id=product enctype="multipart/form-data">
-                <input type=hidden name="session_id" value="{$smarty.session.id}">
+                <input type=hidden name="session_id" value="<?php echo $_SESSION['id'];?>
+">
                 <input name="file" class="import_file" type="file" value="" />
                 <input class="button_green" type="submit" name="" value="Загрузить" />
                 <p>
-                    (максимальный размер файла &mdash; {if $config->max_upload_filesize>1024*1024}{$config->max_upload_filesize/1024/1024|round:'2'} МБ{else}{$config->max_upload_filesize/1024|round:'2'} КБ{/if})
+                    (максимальный размер файла &mdash; <?php if ($_smarty_tpl->tpl_vars['config']->value->max_upload_filesize > 1024*1024) {
+echo $_smarty_tpl->tpl_vars['config']->value->max_upload_filesize/1024/round(1024,'2');?>
+ МБ<?php } else {
+echo $_smarty_tpl->tpl_vars['config']->value->max_upload_filesize/round(1024,'2');?>
+ КБ<?php }?>)
                 </p>
             </form>
         </div>
@@ -134,7 +184,9 @@
 			<a href='files/import/example.csv'>Скачать пример файла</a>
 		</p>
 		</div>
-	{/if}
+	<?php }?>
 
-{/if}
-</div>
+<?php }?>
+</div><?php }
+}
+?>

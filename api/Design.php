@@ -211,7 +211,6 @@ class Design extends Simpla
 	    	return true;
 	}	
 
-
 	public function resize_modifier($filename, $width=0, $height=0, $set_watermark=false)
 	{
 		$resized_filename = $this->image->add_resize_params($filename, $width, $height, $set_watermark);

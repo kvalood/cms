@@ -45,7 +45,7 @@
             <li><a href="index.php?module=CommentsAdmin">Комментарии {if $new_comments_counter}<i>{$new_comments_counter}</i>{/if}</a></li>
             <li><a href="index.php?module=FeedbackAdmin">Обратная связь {if $new_feedback_counter}<i>{$new_feedback_counter}</i>{/if}</a></li>
             <li class="separator"></li>
-            <li><a href="{url module=ImportAdmin}">Импорт товаров *.csv</a></li>
+            <li><a href="index.php?module=ImportAdmin">Импорт товаров *.csv</a></li>
             <li><a href="{url module=ExportAdmin}">Экспорт товаров</a></li>
             <li><a href="{url module=BackupAdmin}">Бекап товаров</a></li>
             <li class="separator"></li>

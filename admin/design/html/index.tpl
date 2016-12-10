@@ -30,6 +30,7 @@
 
     {* Bootstrap multiselect *}
     <script src="/admin/design/libs/bootstrap-select/bootstrap-select.min.js"></script>
+    <script src="/admin/design/libs/bootstrap-select/ajax-bootstrap-select.min.js"></script>
     <link href="/admin/design/libs/bootstrap-select/bootstrap-select.min.css" rel="stylesheet" type="text/css" />
 
     {* Autocomplete *}

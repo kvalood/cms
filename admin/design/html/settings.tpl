@@ -120,11 +120,9 @@
                         <ul>
                             <li>
                                 <label>страница</label>
-                                {if $articles}
+                                {if $home_article}
                                     <select name="home_page" class="selectpicker" data-live-search="true" data-width="100%">
-                                        {foreach $articles as $article}
-                                            <option value="{$article->id}" {if $item->type==1 && $item->id_show==$article->id}selected{/if}>{$article->name|escape}</option>
-                                        {/foreach}
+                                        <option value="{$home_article->id}" selected>{$home_article->name|escape}</option>
                                     </select>
                                 {else}
                                     У вас не создано еще ни одной страницы

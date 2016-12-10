@@ -67,7 +67,7 @@ class IndexAdmin extends Simpla
 		
 		$this->design->set_templates_dir('admin/design/html');
 		$this->design->set_compiled_dir('admin/design/compiled');
-		
+
 		$this->design->assign('settings', $this->settings);
 		$this->design->assign('config',	$this->config);
 		

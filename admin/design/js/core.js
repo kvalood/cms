@@ -46,6 +46,40 @@ $(function() {
      * Стилизуем селекты
      */
     $('.selectpicker, .content select').selectpicker();
+    $('select[name="home_page"]')
+        .selectpicker({
+            liveSearch: true
+        })
+        .ajaxSelectPicker({
+            ajax: {
+                type: 'GET',
+                url: '/admin/ajax/search.php',
+                data: function () {
+                    var params = {
+                        query: '{{{q}}}',
+                        object: 'articles'
+                    };
+                    return params;
+                }
+            },
+            preprocessData: function(data){
+                console.log(data);
+                var articles = [];
+                if(data.suggestions) {
+                    for (var i in data.suggestions) {
+                        var item = data.suggestions[i];
+                        articles.push(
+                            {
+                                'value': item.data.id,
+                                'text': item.value,
+                                'disabled': item.data.visible ? false : true
+                            }
+                        );
+                    }
+                }
+                return articles;
+            }
+        });
 
 
     /**

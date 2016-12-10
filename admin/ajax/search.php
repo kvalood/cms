@@ -19,7 +19,7 @@
             foreach($data as $d)
             {
                 $suggestion = new stdClass();
-                $suggestion->value = $d->name." ($d->id)";
+                $suggestion->value = $d->name;
                 $suggestion->data = $d;
                 $suggestions[] = $suggestion;
             }
@@ -32,7 +32,7 @@
             foreach($data as $d)
             {
                 $suggestion = new stdClass();
-                $suggestion->value = $d->name." ($d->id)";
+                $suggestion->value = $d->name;
                 $suggestion->data = $d;
                 $suggestions[] = $suggestion;
             }

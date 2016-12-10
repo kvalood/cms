@@ -40,11 +40,7 @@ class SettingsAdmin extends Simpla
                 }
             }
 
-            $this->settings->siteinfo = json_encode($siteinfo);
-
-
-
-
+            $this->settings->siteinfo               = json_encode($siteinfo);
 
             // Главная страница
             $this->settings->home_page             = $this->request->post('home_page');
@@ -145,10 +141,9 @@ class SettingsAdmin extends Simpla
             $messages['success'][] = ['key' => 'saved'];
 		}
 
-        // Список всех материалов сайта для выбора главной страницы.
-        // TODO: fixed - Когда будет много материалов, будет огромная партянка. Возможно стоит выводить через ajax
-        $articles = $this->article->get_articles();
-        $this->design->assign('articles', $articles);
+        // Выводим главную страницу
+        if($this->settings->home_page)
+            $this->design->assign('home_article', $this->article->get_article((int)$this->settings->home_page));
 
         if(isset($messages))
             $this->design->assign('messages', $messages);

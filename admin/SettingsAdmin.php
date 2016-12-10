@@ -9,7 +9,6 @@ class SettingsAdmin extends Simpla
 	{	
 		$this->passwd_file = $this->config->root_dir.'/simpla/.passwd';
 		$this->htaccess_file = $this->config->root_dir.'/simpla/.htaccess';
-		
 
 		$managers = $this->managers->get_managers();
 		$this->design->assign('managers', $managers);
@@ -43,7 +42,7 @@ class SettingsAdmin extends Simpla
             $this->settings->siteinfo               = json_encode($siteinfo);
 
             // Главная страница
-            $this->settings->home_page             = $this->request->post('home_page');
+            $this->settings->home_page              = $this->request->post('home_page');
 
 			//Отображение товаров на сайте (Список, блоки)
 			$this->settings->model_type             = $this->request->post('model_type');
@@ -65,7 +64,7 @@ class SettingsAdmin extends Simpla
 			$this->settings->units                  = $this->request->post('units');
 
             // Товары не в наличии в конце списка
-            $this->settings->products_end_list       = $this->request->post('products_end_list');
+            $this->settings->products_end_list      = $this->request->post('products_end_list');
 			
 			//Количество статей отображемых на сайте или в категории
 			$this->settings->articles_num           = $this->request->post('articles_num');
@@ -139,6 +138,8 @@ class SettingsAdmin extends Simpla
 			}			
 
             $messages['success'][] = ['key' => 'saved'];
+
+            header ("location: $_SERVER[REQUEST_URI] ");
 		}
 
         // Выводим главную страницу
@@ -150,6 +151,5 @@ class SettingsAdmin extends Simpla
 
  	  	return $this->design->fetch('settings.tpl');
 	}
-	
-}
 
+}

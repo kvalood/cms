@@ -46,6 +46,10 @@ $(function() {
      * Стилизуем селекты
      */
     $('.selectpicker, .content select').selectpicker();
+
+    /**
+     * Селект в настройках сайта, для поиска статей для главной
+     */
     $('select[name="home_page"]')
         .selectpicker({
             liveSearch: true
@@ -63,7 +67,6 @@ $(function() {
                 }
             },
             preprocessData: function(data){
-                console.log(data);
                 var articles = [];
                 if(data.suggestions) {
                     for (var i in data.suggestions) {
@@ -117,6 +120,13 @@ $(function() {
      */
     $(document).on('click', '#create_siteinfo', function() {
         $('.siteinfo_field.hidden').clone(true).removeClass('hidden').appendTo($(this).parent().find('ul'));
+    });
+
+    /**
+     * Удаление дополнительного поля siteinfo, в разделе Настройки -> информация о сайте
+     */
+    $(document).on('click', '.siteinfo_field button[name="remove"]', function() {
+        $(this).parent().remove();
     });
 
 

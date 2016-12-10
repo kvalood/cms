@@ -30,10 +30,11 @@ class Settings extends Simpla
 
 		        // Делаем доступными параметры $settings->siteinfo.NAME_PARAMETER
 		        if ($result->name == 'siteinfo') {
+                    $siteinfo_value = [];
                     foreach (json_decode($result->value) as $siteinfo) {
-                        $result->value = array();
-                        $result->value[$siteinfo->name] = $siteinfo->value;
+                        $siteinfo_value[$siteinfo->name] = $siteinfo->value;
                     }
+                    $result->value = $siteinfo_value;
                 }
 
                 $this->vars[$result->name] = $result->value;

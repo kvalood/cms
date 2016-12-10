@@ -155,7 +155,7 @@
                 {/foreach}
             {else}
             {*/size_color*}
-            <select name=purchases[variant_id][{$purchase->id}] {if $purchase->product->variants|count==1 && $purchase->variant_name == '' && $purchase->variant->sku == ''}style='display:none;'{/if}>
+                <select name=purchases[variant_id][{$purchase->id}] {if $purchase->product->variants|count==1 && $purchase->variant_name == '' && $purchase->variant->sku == ''}style='display:none;'{/if}>
                     {if !$purchase->variant}<option price='{$purchase->price}' amount='{$purchase->amount}' value=''>{$purchase->variant_name|escape} {if $purchase->sku}(арт. {$purchase->sku}){/if}</option>{/if}
                     {foreach $purchase->product->variants as $v}
                         {if $v->stock>0 || $v->id == $purchase->variant->id}
@@ -166,20 +166,20 @@
                         {/if}
                     {/foreach}
                 </select>
-                    {*size_color*}
-                {/if}
-                {*/size_color*}
+            {*size_color*}
+            {/if}
+            {*/size_color*}
             </span>
             <span class=view_purchase>
                 {$purchase->variant_name} {if $purchase->sku}(арт. {$purchase->sku}){/if}
             </span>
-                            {*size_color*}
-                            {if !empty($purchase->variant_color)}
-                                <span class=view_purchase>
-                    {$purchase->variant_color}
-                </span>
-                            {/if}
-                            {*/size_color*}
+                {*size_color*}
+                {if !empty($purchase->variant_color)}
+                    <span class=view_purchase>
+                        {$purchase->variant_color}
+                    </span>
+                {/if}
+                {*/size_color*}
                         </div>
 
                         {if $purchase->product}

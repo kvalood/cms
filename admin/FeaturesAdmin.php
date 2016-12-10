@@ -57,6 +57,16 @@ class FeaturesAdmin extends Simpla
 			    	$this->features->update_feature($ids, array('in_filter'=>0));    
 					break;
 			    }
+                case 'set_in_yandex':
+                {
+                    $this->features->update_feature($ids, array('in_yandex'=>1));
+                    break;
+                }
+                case 'unset_in_yandex':
+                {
+                    $this->features->update_feature($ids, array('in_yandex'=>0));
+                    break;
+                }
 			    case 'delete':
 			    {
 			    	$current_cat = $this->request->get('category_id', 'integer');

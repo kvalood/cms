@@ -14,7 +14,7 @@
 
 	$simpla->design->assign('currency',	$currency);
 	
-	$result = $simpla->design->fetch('cart_informer.tpl');
+	$result = $simpla->design->fetch('widget/cart_informer.tpl');
 	header("Content-type: application/json; charset=UTF-8");
 	header("Cache-Control: must-revalidate");
 	header("Pragma: no-cache");

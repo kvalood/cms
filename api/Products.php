@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Работа с товарами
- */
-
 require_once('Simpla.php');
 
 class Products extends Simpla
@@ -34,7 +30,7 @@ class Products extends Simpla
 		$is_featured_filter = '';
 		$discounted_filter = '';
 		$in_stock_filter = '';
-		$group_by = '';
+		$group_by = 'GROUP BY p.id';
         $export_filter = '';
         $price_filter = '';
         $variant_join = '';
@@ -58,7 +54,6 @@ class Products extends Simpla
 		if(!empty($filter['category_id']))
 		{
 			$category_id_filter = $this->db->placehold('INNER JOIN __products_categories pc ON pc.product_id = p.id AND pc.category_id in(?@)', (array)$filter['category_id']);
-			$group_by = "GROUP BY p.id";
 		}
 
 		if(isset($filter['featured']))
@@ -222,16 +217,13 @@ class Products extends Simpla
 					p.google,
 					p.likes,
 					b.name as brand,
-					b.url as brand_url,
-					pcat.category_id as category_id, 
-					c.name as category_name,
-					c.url as category_url
+					b.url as brand_url,					
+					GROUP_CONCAT(pcat.category_id) as category_ids
 				FROM __products p
 				$variant_join		
 				$category_id_filter 
 				LEFT JOIN __brands b ON p.brand_id = b.id
 				LEFT JOIN __products_categories as pcat ON pcat.product_id = p.id
-				LEFT JOIN __categories as c ON c.id = pcat.category_id
 				WHERE 
 					1
 					$where
@@ -670,7 +662,7 @@ class Products extends Simpla
 	}
 
 	function get_images($filter = array())
-	{		
+	{
 		$product_id_filter = '';
 		$group_by = '';
 
@@ -683,7 +675,7 @@ class Products extends Simpla
 		$this->db->query($query);
 		return $this->db->results();
 	}
-	
+
 	public function add_image($product_id, $filename, $name = '', $variant_id = '')
 	{
 		$query = $this->db->placehold("SELECT id FROM __images WHERE product_id=? AND filename=?", $product_id, $filename);

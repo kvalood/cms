@@ -8,8 +8,20 @@ body, html{
     border: 1px solid #E0E0E0;
     border-radius: 3px;
     height: 32px;
-    padding: 0 0.75em !important;
+    padding: 0.3em 0.5em !important;
     width: 100%;
+}
+
+textarea[name="meta_keywords"],
+textarea[name="meta_description"] {
+    min-height: 60px;
+    resize: vertical;
+}
+
+input[name="url"],
+textarea[name="meta_keywords"],
+textarea[name="meta_description"] {
+    margin-bottom: 6px;
 }
 
 
@@ -157,6 +169,24 @@ header {
 }
 
 
+/* Страница прайс листа. Колонки */
+.table_box{
+    overflow-x: scroll;
+    max-height: 500px;
+    font-size: 12px;
+    position: relative;
+    margin-top: 40px;
+}
+.table_box table{
+    border-collapse: collapse;
+}
+.table_box td{
+    min-width: 220px;
+    padding: 5px 10px;
+    border: 1px solid #cbcbcb;
+}
+
+
 /* Контентная часть */
 .content{
     margin: 20px 0;
@@ -257,8 +287,37 @@ header {
 }
 
 .list_items .control{
-    text-align: center;
-}
+     text-align: center;
+ }
+
+
+.control a.delete{}
+.control a.enable{}
+.control a.preview{}
+
+
+
+
+.control a.edit{background-image:url(../images/pencil.png)}
+.invisible .control a.enable, .row[data-visible="0"] .control a.enable{background-image:url(../images/lightbulb_off.png)}
+.control a.processed{background-image:url(../images/lightbulb.png)}
+.control a.print{background-image:url(../images/printer_small.png)}
+.control a.featured{background-image:url(../images/star_gray.png)}
+.control a.duplicate{background-image:url(../images/page_copy.png)}
+.featured .control a.featured{background-image:url(../images/star.png)}
+.control a.cents{background-image:url(../images/coin_stack_gold_off.png)}
+.cents .control a.cents{background-image:url(../images/coin_stack_gold.png)}
+.control a.loading_icon{background-image:url(../images/loader.gif)}
+.control a.restore{background-image:url(../images/clock_history_frame.png)}
+.control a.ymarket.on	{ background-image: url(../images/ymarket_on.png); }
+.control a.ymarket.off	{ background-image: url(../images/ymarket_off.png); }
+.control a.google.on	{ background-image: url(../images/google_on.png); }
+.control a.google.off	{ background-image: url(../images/google_off.png); }
+.phone{padding-right:20px;background-position:right center;background-repeat:no-repeat;background-image:url(../images/phone.png);cursor:pointer}
+.row[data-visible="0"] .control a.in_filter{background-image:url(../images/filter_gray.png)}
+.row[data-visible="1"] .control a.in_filter{background-image:url(../images/filter.png)}
+
+
 
 .list_item:nth-of-type(2n){
     background: #F3F5F8;
@@ -326,6 +385,8 @@ footer{
 .button.back{
 }
 
+
+
 .button[disabled] {
     background: #000 !important;
     opacity: 0.2;
@@ -348,6 +409,42 @@ footer{
     background-color: #E0A855;
 }
 
+.gray, .button.update{
+    color: #000;
+    background: #eee;
+}
+
+.button.update:before,
+button[name="generate_url"]:before,
+button[name="generate_keywords"]:before,
+button[name="generate_description"]:before
+{
+    content: '\e900';
+    font-family: 'icomoon' !important;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+
+/* Переключалки */
+.fancy-radio,.fancy-checkbox{position:relative;cursor:pointer}
+.fancy-radio input,.fancy-checkbox input{opacity:0;position:absolute;display: none;}
+.fancy-radio span:before,.fancy-radio span:after,.fancy-checkbox span:before,.fancy-checkbox span:after{box-sizing:border-box;content:'';display:block;position:absolute;transition:all .25s;top:2px}
+
+.fancy-checkbox{padding-left: 40px;font-size: 14px;margin-right: 18px;margin-top: 4px;display: inline-block;vertical-align: top;}
+.fancy-checkbox span:before{width:34px;height:17px;border-radius:11px;left:0;background:#C3C5C4;border:1px solid #B3B5B4}
+.fancy-checkbox span:after{width:15px;height:15px;border-radius:10px;background:none repeat scroll 0 0 #FFF;left:1px;top:3px}
+.fancy-checkbox input:checked + span:after{left:18px}
+.fancy-checkbox input:checked + span:before{background:#5BB75B;border:1px solid #49A449}
+.fancy-checkbox input:focus + span:before{border:1px solid #8f9391}
+.fancy-checkbox input:focus:checked + span:before{border:1px solid #0e6351}
+
+.fancy-radio{padding-left: 22px;font-size: 14px;margin-right: 18px;margin-top: 4px;display: inline-block;vertical-align: top;}
+.fancy-radio span:before{width: 17px;height: 17px;border-radius:50%;top:2px;left:0;background:#fff;border:1px solid #c3c5c4}
+.fancy-radio span:after{border-radius:50%;background:#fff;top:12px;left:10px;width:0;height:0}
+.fancy-radio input:checked + span:after{width: 9px;height: 9px;top: 6px;left: 4px;}
+.fancy-radio input:checked + span:before{background:#5BB75B;border: 1px solid #49A449;}
+.fancy-radio input:focus + span:before{border:1px solid #0e6351}
 
 
 /* Левая колонка, list-group */
@@ -378,7 +475,22 @@ footer{
     border-bottom-left-radius: 4px;
 }
 
-
+/* На странице настроек. Свойства */
+.siteinfo_field{
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+.siteinfo_field input[type="text"]{
+    float: left;
+    width: 30%;
+    max-width: 200px;
+}
+.siteinfo_field textarea{
+    float: left;
+    width: 70%;
+    resize: vertical;
+    margin-left: 10px;
+}
 
 
 

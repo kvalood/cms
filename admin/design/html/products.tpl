@@ -74,7 +74,7 @@
 					<ul>
                         {foreach $product->variants as $variant}
                         <li {if !$variant@first}class="variant" style="display:none;"{/if}>
-                            <i title="{$variant->name|escape}">{$variant->name|escape|truncate:30:'…':true:true}</i>
+                            <i title="{if $variant->color}{$variant->color|escape} {/if}{$variant->name|escape}">{if $variant->color}{$variant->color|escape} {/if}{$variant->name|escape}</i>
                             <input class="price {if $variant->compare_price>0}compare_price{/if}" type="text" name="price[{$variant->id}]" value="{$variant->price}" {if $variant->compare_price>0}title="Старая цена &mdash; {$variant->compare_price} {$currency->sign}"{/if} />{$currency->sign}
                             <input class="stock" type="text" name="stock[{$variant->id}]" value="{if $variant->infinity}∞{else}{$variant->stock}{/if}" />{$settings->units}
                         </li>

@@ -1,66 +1,60 @@
-{* Title *}
 {$meta_title='Свойства товаров' scope=parent}
 
-
-{* дополнительные опции *}
-{capture name=option}
-	<h3>Сброс значений свойств <span id="help"><i>?</i><div id="text">Внимание! Сброс значений свойств подразумевает очистку свойств от лишних символов. Удаляется все кроме цифер и точек у свойств с типом 'Слайдер - диапазон'. Запятые преобразуются в точки.</div></span></h3>
-	<a href="index.php?module=FeaturesAdmin&method=reset" class="button_green captufe_all">Сбросить</a>	
-{/capture}
-
-
 <div class="content_header">
-	{* Заголовок *}
-	<div id="header">
-		<h1>Свойства товаров</h1>
-	</div>
-	
-	<a href="index.php?module=FeatureAdmin">+ Добавить свойство</a>
+	<h1>Свойства товаров</h1>
+
+    <div class="buttons">
+	    <a href="{url module=FeatureAdmin}" class="button green">Добавить свойство</a>
+    </div>
 </div>	
 
 <div class="board">
-	{if $reset}
-		{$reset}
-	{/if}
-	
-	
+
 	{if $features}
 	<div class="board_content">		
-		<form id="list_form" method="post" class="left_board" data-object="feature">
+		<form method="post" data-object="feature">
 			<input type="hidden" name="session_id" value="{$smarty.session.id}">
 
-			<div id="list">
+			<div class="list_items">
+                <div class="row header_list">
+                    <div class="col s1 checkbox">
+                        <input type="checkbox" id="check_all" />
+                    </div>
+                    <div class="col s9">Название</div>
+                    <div class="col s2 control"></div>
+                </div>
+
+                <div id="sortable">
 				{foreach $features as $feature}
-				<div class="row" data-visible="{$feature->in_filter}">
-					<input type="hidden" name="positions[{$feature->id}]" value="{$feature->position}">
-					<div class="move cell"><div class="move_zone"></div></div>
-					<div class="checkbox cell">
-						<input type="checkbox" name="check[]" value="{$feature->id}" />				
-					</div>
-					<div class="cell">
-						<a href="index.php?module=FeatureAdmin&id={$feature->id|escape}">{$feature->name|escape}</a>
-					</div>
-					<div class="icons cell">
-						<a title="Использовать в фильтре" class="in_filter" href='#' ></a>
-						<a title="Удалить" class="delete" href='#' ></a>
-					</div>
-					<div class="clear"></div>
-				</div>
+                    <div class="row list_item">
+                        <input type="hidden" name="positions[{$feature->id}]" value="{$feature->position}">
+
+                        <div class="col s1 checkbox">
+                            <input type="checkbox" name="check[]" value="{$feature->id}" />
+                        </div>
+                        <div class="col s9">
+                            <a href="{url module=FeatureAdmin id=$feature->id|escape}">{$feature->name|escape}</a>
+                        </div>
+                        <div class="col s2 control">
+                            <a title="Выгружать в Яндекс.Маркет" class="in_yandex{if $feature->in_yandex} on{/if}" href='#' ></a>
+                            <a title="Использовать в фильтре" class="in_filter{if $feature->in_filter} on{/if}" href='#' ></a>
+                            <a title="Удалить" class="delete" href='#' ></a>
+                        </div>
+                    </div>
 				{/foreach}
+                </div>
 			</div>
 			
 			<div id="action">
-				<label id="check_all" class="dash_link">Выбрать все</label>
+                <select name="action">
+                    <option value="set_in_filter">Использовать в фильтре</option>
+                    <option value="unset_in_filter">Не использовать в фильтре</option>
+                    <option value="set_in_yandex">Выгружать в Яндекс.Маркет</option>
+                    <option value="unset_in_yandex">Не выгружать в Яндекс.Маркет</option>
+                    <option value="delete">Удалить</option>
+                </select>
 		
-				<span id="select">
-					<select name="action">
-						<option value="set_in_filter">Использовать в фильтре</option>
-						<option value="unset_in_filter">Не использовать в фильтре</option>
-						<option value="delete">Удалить</option>
-					</select>
-				</span>
-		
-				<input id="apply_action" class="button_green" type="submit" value="Применить">
+				<input class="button green" type="submit" value="Применить">
 			</div>
 		</form>
 		
@@ -88,80 +82,3 @@
 		Нет свойств
 	{/if}
 </div>
-
-
-{literal}
-<script>
-$(function() {
-
-	// Сортировка списка
-	$("#list").sortable({
-		items:             ".row",
-		tolerance:         "pointer",
-		handle:            ".move_zone",
-		axis: 'y',
-		scrollSensitivity: 40,
-		opacity:           0.7, 
-		forcePlaceholderSize: true,
-		
-		helper: function(event, ui){		
-			if($('input[type="checkbox"][name*="check"]:checked').size()<1) return ui;
-			var helper = $('<div/>');
-			$('input[type="checkbox"][name*="check"]:checked').each(function(){
-				var item = $(this).closest('.row');
-				helper.height(helper.height()+item.innerHeight());
-				if(item[0]!=ui[0]) {
-					helper.append(item.clone());
-					$(this).closest('.row').remove();
-				}
-				else {
-					helper.append(ui.clone());
-					item.find('input[type="checkbox"][name*="check"]').attr('checked', false);
-				}
-			});
-			return helper;			
-		},	
- 		start: function(event, ui) {
-  			if(ui.helper.children('.row').size()>0)
-				$('.ui-sortable-placeholder').height(ui.helper.height());
-		},
-		beforeStop:function(event, ui){
-			if(ui.helper.children('.row').size()>0){
-				ui.helper.children('.row').each(function(){
-					$(this).insertBefore(ui.item);
-				});
-				ui.item.remove();
-			}
-		},
-		update:function(event, ui)
-		{
-			$("#list_form input[name*='check']").attr('checked', false);
-			$("#list_form").ajaxSubmit(function() {
-				colorize();
-			});
-		}
-	});
-	
-	// Выделить все
-	$("#check_all").click(function() {
-		$('#list input[type="checkbox"][name*="check"]').attr('checked', $('#list input[type="checkbox"][name*="check"]:not(:checked)').length>0);
-	});
-
-	// Удалить
-	$("a.delete").click(function() {
-		$('#list input[type="checkbox"][name*="check"]').attr('checked', false);
-		$(this).closest("div.row").find('input[type="checkbox"][name*="check"]').attr('checked', true);
-		$(this).closest("form").find('select[name="action"] option[value=delete]').attr('selected', true);
-		$(this).closest("form").submit();
-	});
-	
-	// Подтверждение удаления
-	$("form").submit(function() {
-		if($('#list input[type="checkbox"][name*="check"]:checked').length>0)
-			if($('select[name="action"]').val()=='delete' && !confirm('Подтвердите удаление'))
-				return false;	
-	});
-	
-});
-</script>
-{/literal}

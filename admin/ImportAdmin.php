@@ -4,12 +4,142 @@ require_once('api/Simpla.php');
 class ImportAdmin extends Simpla
 {
     public $import_files_dir = 'admin/files/import/';
-    public $import_file = 'import.csv';
-    public $allowed_extensions = ['csv', 'txt'];
+    public $allowed_extensions = ['csv', 'txt', 'xsl', 'xlsx'];
     private $locale = 'ru_RU.UTF-8';
 
     public function fetch()
     {
+        switch($this->request->get('method')) {
+
+            // Прайс
+            case 'item':
+
+                $item = new stdClass();
+                $item_id = !empty($this->request->get('id', 'integer')) ? $this->request->get('id', 'integer') : $this->request->post('id', 'integer');
+
+                if ($this->request->method('post') && $this->request->post('upload_file')
+                    && $this->request->files("file")
+                    && $item = $this->import->get_price(intval($item_id))) {
+
+                    // Имя оригинального файла
+                    $file_import = $this->image->correct_filename($this->request->files("file", "name"));
+                    $uploaded_file = pathinfo($file_import, PATHINFO_BASENAME);
+                    $base = pathinfo($uploaded_file, PATHINFO_FILENAME);
+                    $ext = pathinfo($uploaded_file, PATHINFO_EXTENSION);
+
+                    if(in_array(strtolower($ext), $this->allowed_extensions)) {
+
+                        $temp = tempnam($this->import_files_dir, 'temp_');
+                        if (!move_uploaded_file($this->request->files("file", "tmp_name"), $temp))
+                            $messages['error'][] = ['key' => 'upload_error'];
+
+                        if (!$this->import->convert_file($temp, $this->import_files_dir . $file_import)) {
+                            $messages['error'][] = ['key' => 'convert_error'];
+                        } else {
+                            $this->design->assign('allow_import', $file_import);
+
+                            if(isset($item->settings)) {
+                                $item->settings = (array) json_decode($item->settings);
+                                $item->settings['file_import'] = $file_import;
+                                $item->settings = json_encode($item->settings);
+                            }
+                            $this->import->update_price($item->id, $item);
+                            $messages['success'][] = ['key' => 'updated'];
+                        }
+
+                        //$this->design->assign('filename',  $this->request->files("file", "name"));
+                        unlink($temp);
+                    }
+                } elseif ($this->request->method('post') AND $this->request->post('save')) {
+
+                    $item->id = $this->request->post('id', 'integer');
+                    $item->auto_import = $this->request->post('auto_import', 'boolean');
+                    $item->available_import = $this->request->post('available_import', 'boolean');
+                    $item->name = $this->request->post('name');
+
+                    $settings = $this->request->post('settings');
+
+                    if(isset($settings['field'])) {
+                        $settings['field'] = array_diff($settings['field'], ['']);
+                        $item->settings = json_encode($settings, TRUE);
+                    }
+
+                    if(empty($item->name)) {
+                        $messages['error'][] = ['key' => 'required_fields'];
+                    } else {
+                        if (empty($item->id)) {
+                            $item->id = $this->import->add_price($item);
+                            $messages['success'][] = ['key' => 'added'];
+                        } else {
+                            $this->import->update_price($item->id, $item);
+                            $messages['success'][] = ['key' => 'updated'];
+                        }
+                        $item = $this->import->get_price($item->id);
+                    }
+                } else {
+                    $item = $this->import->get_price($item_id);
+                }
+
+                if(isset($item->settings))
+                    $item->settings = json_decode($item->settings, TRUE);
+
+                // Прочитаем первые 50 строк, и покажем их.
+                $columns = array();
+                $row = 1;
+                if(isset($item->settings['file_import']) AND ($f = fopen($this->import_files_dir . $item->settings['file_import'], 'r')) !== FALSE) {
+                    while (($data = fgetcsv($f, 1000000, ';')) !== FALSE AND $row <= 50) {
+                        $columns[] = $data;
+                        $row++;
+                    }
+                    $this->design->assign('columns', $columns);
+
+                    // Покажем все свойства товаров
+                    $this->design->assign('features', $this->features->get_features());
+                }
+
+                $this->design->assign('item', $item);
+                $template = 'import_item.tpl';
+                break;
+
+            // Список прайсов
+            default:
+
+                if($this->request->method('post'))
+                {
+                    // Действия с выбранными
+                    $ids = $this->request->post('check');
+                    if(is_array($ids))
+                        switch($this->request->post('action'))
+                        {
+                            case 'delete':
+                            {
+                                foreach($ids as $id)
+                                {
+                                    $this->import->delete_price($id);
+                                }
+                                $messages['success'][] = ['key' => 'removed'];
+                                break;
+                            }
+                        }
+                }
+
+                $prices = $this->import->get_prices();
+                $this->design->assign('prices', $prices);
+                $this->design->assign('count_prices', $this->import->count_prices());
+                $template = 'import.tpl';
+
+                break;
+        }
+
+        if(isset($messages))
+            $this->design->assign('messages', $messages);
+
+        return $this->body = $this->design->fetch($template);
+
+
+
+        /*
+
         $this->design->assign('import_files_dir', $this->import_files_dir);
         if(!is_writable($this->import_files_dir)) {
             $messages['error'][] = ['key' => 'no_permission', 'data' => $this->import_files_dir];
@@ -24,7 +154,7 @@ class ImportAdmin extends Simpla
             }
             setlocale(LC_ALL, $old_locale);
 
-            if($this->request->method('post') && ($this->request->files("file")))
+            if($this->request->method('post') && $this->request->post('upload_file') && ($this->request->files("file")))
             {
                 $uploaded_name = $this->request->files("file", "tmp_name");
                 $temp = tempnam($this->import_files_dir, 'temp_');
@@ -34,87 +164,29 @@ class ImportAdmin extends Simpla
                 if(!$this->convert_file($temp, $this->import_files_dir.$this->import_file))
                     $messages['error'][] = ['key' => 'convert_error'];
                 else
-                    $this->design->assign('filename',  $this->request->files("file", "name"));
+                    $this->design->assign('allow_import', $this->request->files("file", "name"));
+                //$this->design->assign('filename',  $this->request->files("file", "name"));
                 unlink($temp);
             }
-            elseif($this->request->method('post') AND $this->request->method('post') == 'save')
+            elseif($this->request->method('post') AND $this->request->post('save'))
             {
-                $options = json_encode(array_diff($this->request->post('options'), array('')));
-                $this->settings->impotr_csv_fields = $options;
+                $import_csv_settings = $this->request->post('import_settings');
+                $import_csv_settings['field'] = array_diff($import_csv_settings['field'], ['']);
+                $this->settings->import_csv_settings = json_encode($import_csv_settings);
             }
 
+            // Прочитаем первые 10 строк, и покажем их.
+            $f = fopen($this->import_files_dir.$this->import_file, 'r');
+            $columns = fgetcsv($f, null, ';');
+            $this->design->assign('columns', $columns);
         }
 
-        $fields = json_decode($this->settings->impotr_csv_fields);
-        $this->design->assign('fields', $fields);
+        $import_csv_settings = json_decode($this->settings->import_csv_settings);
+        $this->design->assign('import_csv_settings', $import_csv_settings);
 
         if(isset($messages))
             $this->design->assign('messages', $messages);
 
-        return $this->design->fetch('import_csv.tpl');
-    }
-
-    private function convert_file($source, $dest)
-    {
-        // Узнаем какая кодировка у файла
-        $teststring = file_get_contents($source, null, null, null, 1000000);
-
-        if (preg_match('//u', $teststring)) // Кодировка - UTF8
-        {
-            // Просто копируем файл
-            return copy($source, $dest);
-        }
-        else
-        {
-            // Конвертируем в UFT8
-            if(!$src = fopen($source, "r"))
-                return false;
-
-            if(!$dst = fopen($dest, "w"))
-                return false;
-
-            while (($line = fgets($src, 4096)) !== false)
-            {
-                $line = $this->win_to_utf($line);
-                fwrite($dst, $line);
-            }
-            fclose($src);
-            fclose($dst);
-            return true;
-        }
-    }
-
-    private function win_to_utf($text)
-    {
-        if(function_exists('iconv'))
-        {
-            return @iconv('windows-1251', 'UTF-8', $text);
-        }
-        else
-        {
-            $t = '';
-            for($i=0, $m=strlen($text); $i<$m; $i++)
-            {
-                $c=ord($text[$i]);
-                if ($c<=127) {$t.=chr($c); continue; }
-                if ($c>=192 && $c<=207)    {$t.=chr(208).chr($c-48); continue; }
-                if ($c>=208 && $c<=239) {$t.=chr(208).chr($c-48); continue; }
-                if ($c>=240 && $c<=255) {$t.=chr(209).chr($c-112); continue; }
-//				if ($c==184) { $t.=chr(209).chr(209); continue; };
-//				if ($c==168) { $t.=chr(208).chr(129);  continue; };
-                if ($c==184) { $t.=chr(209).chr(145); continue; }; #ё
-                if ($c==168) { $t.=chr(208).chr(129); continue; }; #Ё
-                if ($c==179) { $t.=chr(209).chr(150); continue; }; #і
-                if ($c==178) { $t.=chr(208).chr(134); continue; }; #І
-                if ($c==191) { $t.=chr(209).chr(151); continue; }; #ї
-                if ($c==175) { $t.=chr(208).chr(135); continue; }; #ї
-                if ($c==186) { $t.=chr(209).chr(148); continue; }; #є
-                if ($c==170) { $t.=chr(208).chr(132); continue; }; #Є
-                if ($c==180) { $t.=chr(210).chr(145); continue; }; #ґ
-                if ($c==165) { $t.=chr(210).chr(144); continue; }; #Ґ
-                if ($c==184) { $t.=chr(209).chr(145); continue; }; #Ґ
-            }
-            return $t;
-        }
+        */
     }
 }

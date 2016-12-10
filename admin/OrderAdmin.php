@@ -66,12 +66,12 @@ class OrderAdmin extends Simpla
 					if(!empty($purchase->id))
 						if(!empty($variant))
 						//Absorber variant_color
-							$this->orders->update_purchase($purchase->id, array('variant_id'=>$purchase->variant_id, 'variant_name'=>$variant->name, 'sku'=>$variant->sku, 'variant_color' => $variant->color, 'price'=>$purchase->price, 'amount'=>$purchase->amount));
+							$this->orders->update_purchase($purchase->id, array('variant_id'=>$purchase->variant_id, 'variant_name'=>$variant->name, 'variant_color' => $variant->color, 'sku'=>$variant->sku, 'variant_color' => $variant->color, 'price'=>$purchase->price, 'amount'=>$purchase->amount));
 						else
 							$this->orders->update_purchase($purchase->id, array('price'=>$purchase->price, 'amount'=>$purchase->amount));
 					
 					elseif(!$purchase->id = $this->orders->add_purchase(array('order_id'=>$order->id, 'variant_id'=>$purchase->variant_id, 'variant_name'=>$variant->name, 'price'=>$purchase->price, 'amount'=>$purchase->amount)))
-+						$this->design->assign('message_error', 'error_closing');
+					    $this->design->assign('message_error', 'error_closing');
 						
 					$posted_purchases_ids[] = $purchase->id;			
 				}
@@ -166,17 +166,29 @@ class OrderAdmin extends Simpla
 			$variants = array();
 			foreach($this->variants->get_variants(array('product_id'=>$products_ids)) as $v)
 				$variants[$v->id] = $v;
-			
-			
-					
-			/* Absorber size_color*/
-			foreach($variants as $variant)
-				if(!empty($products[$variant->product_id]))
-					$products[$variant->product_id]->variants[] = $variant;
-				
-            
+
+            /*size_color*/
+//			foreach($variants as $variant)
+//				if(!empty($products[$variant->product_id]))
+//					$products[$variant->product_id]->variants[] = $variant;
+            foreach($variants as $variant) {
+                if(!empty($products[$variant->product_id])) {
+                    if (!empty($variant->name)) {
+                        if(empty($products[$variant->product_id]->size_color[$variant->name])) {
+                            $products[$variant->product_id]->size_color[$variant->name] = array();
+                        }
+                        $products[$variant->product_id]->size_color[$variant->name][] = $variant;
+
+                        if ($variant->color) {
+                            $products[$variant->product_id]->is_show[$variant->name] = true;
+                        } elseif (!$products[$variant->product_id]->is_show[$variant->name]) {
+                            $products[$variant->product_id]->is_show[$variant->name] = false;
+                        }
+                    }
+                    $products[$variant->product_id]->variants[] = $variant;
+                }
+            }
             /*/size_color*/
-				
 	
 			foreach($purchases as &$purchase)
 			{

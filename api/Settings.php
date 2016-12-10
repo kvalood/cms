@@ -16,7 +16,7 @@ require_once('Simpla.php');
 class Settings extends Simpla
 {
 	private $vars = array();
-	
+
 	function __construct()
 	{
 		parent::__construct();
@@ -26,15 +26,25 @@ class Settings extends Simpla
 
 		// и записываем их в переменную		
 		foreach($this->db->results() as $result)
-			if(!($this->vars[$result->name] = @unserialize($result->value)))
-				$this->vars[$result->name] = $result->value;
+			if(!($this->vars[$result->name] = @unserialize($result->value))) {
+
+		        // Делаем доступными параметры $settings->siteinfo.NAME_PARAMETER
+		        if ($result->name == 'siteinfo') {
+                    foreach (json_decode($result->value) as $siteinfo) {
+                        $result->value = array();
+                        $result->value[$siteinfo->name] = $siteinfo->value;
+                    }
+                }
+
+                $this->vars[$result->name] = $result->value;
+            }
 	}
 	
 	public function __get($name)
 	{
 		if($res = parent::__get($name))
 			return $res;
-		
+
 		if(isset($this->vars[$name]))
 			return $this->vars[$name];
 		else

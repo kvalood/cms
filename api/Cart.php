@@ -53,8 +53,8 @@ class Cart extends Simpla
 				$images = $this->products->get_images(array('product_id'=>$products_ids));
 				foreach($images as $image)
 					$products[$image->product_id]->images[$image->id] = $image;
-			
-				
+
+
 				foreach($items as $variant_id=>$item)
 				{	
 					$purchase = null;

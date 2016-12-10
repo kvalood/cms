@@ -7,7 +7,7 @@ require_once('api/Simpla.php');
 class IndexAdmin extends Simpla
 {
 	// Соответсвие модулей и названий соответствующих прав
-	private $modules_permissions = array(
+	private $modules_permissions = [
 		'ProductsAdmin'       => 'products',
 		'ProductAdmin'        => 'products',
 		'CategoriesAdmin'     => 'categories',
@@ -57,7 +57,7 @@ class IndexAdmin extends Simpla
 		'ArticleCategoryAdmin'=> 'articlecat',
 		'MenuAdmin'           => 'menu',
 		'TagsAdmin'			  => 'tags'
-	);
+	];
 
 	// Конструктор
 	public function __construct()
@@ -143,9 +143,8 @@ class IndexAdmin extends Simpla
 		$this->design->assign('menu', $menu);
 				
 		// Счетчики для верхнего меню
-		$new_orders_counter = $this->orders->count_orders(['status'=>0]);
+		$new_orders_counter = $this->orders->count_orders(['status' => 0]);
 		$this->design->assign("new_orders_counter", $new_orders_counter);
-
 		
 		// Создаем текущую обертку сайта (обычно index.tpl)
 		$wrapper = $this->design->smarty->getTemplateVars('wrapper');

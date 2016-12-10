@@ -373,11 +373,9 @@ class Orders extends Simpla
 		if(!isset($purchase->variant_name) && !empty($variant))
 			$purchase->variant_name = $variant->name;
 		
-		/*Absorber*/
         if(!isset($purchase->variant_color) && !empty($variant))
 			$purchase->variant_color = $variant->color;
-        /*END Absorber*/
-		
+
 		if(!isset($purchase->price) && !empty($variant))
 			$purchase->price = $variant->price;
 			

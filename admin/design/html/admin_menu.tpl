@@ -24,13 +24,13 @@
     </li>
 
     <li class="item__menu{if $module=='article' OR $module == 'articlecat' OR $module == 'slides' OR $module == 'tags'} active{/if}">
-        <div class="menu-item__title">Материалы</div>
+        <div class="menu-item__title">Страницы</div>
         <ul>
             <li><a href="index.php?module=ArticleAdmin">Создать страницу</a></li>
             <li><a href="index.php?module=ArticleAdmin">Список страниц</a></li>
             <li class="separator"></li>
-            <li><a href="index.php?module=ArticleCategoryAdmin">Создать категорию</a></li>
-            <li><a href="index.php?module=ArticleCategoryAdmin">Список категорий</a></li>
+            <li><a href="{url module=ArticleAdmin method=category}">Создать категорию</a></li>
+            <li><a href="{url module=ArticleAdmin method=categories}">Список категорий</a></li>
 
         </ul>
     </li>
@@ -40,7 +40,7 @@
         <ul>
             <li><a href="index.php?module=MenuAdmin">Меню сайта</a></li>
             <li class="separator"></li>
-            <li><a href="index.php?module=SliderAdmin">Слайдеры</a></li>
+            <li><a href="index.php?module=BannerAdmin">Баннеры/Слайдеры</a></li>
             <li class="separator"></li>
             <li><a href="index.php?module=CommentsAdmin">Комментарии {if $new_comments_counter}<i>{$new_comments_counter}</i>{/if}</a></li>
             <li><a href="index.php?module=FeedbackAdmin">Обратная связь {if $new_feedback_counter}<i>{$new_feedback_counter}</i>{/if}</a></li>

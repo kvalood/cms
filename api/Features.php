@@ -12,26 +12,23 @@
 require_once('Simpla.php');
 
 class Features extends Simpla
-{	
-	
+{
+    // Выбираем свойства
 	function get_features($filter = array())
 	{
-		$category_id_filter = '';	
+	    $where = '';
+
 		if(isset($filter['category_id']))
-			$category_id_filter = $this->db->placehold('AND id in(SELECT feature_id FROM __categories_features AS cf WHERE cf.category_id in(?@))', (array)$filter['category_id']);
+            $where .= $this->db->placehold(' AND id in(SELECT feature_id FROM __categories_features AS cf WHERE cf.category_id in(?@))', (array)$filter['category_id']);
 		
-		$in_filter_filter = '';	
 		if(isset($filter['in_filter']))
-			$in_filter_filter = $this->db->placehold('AND in_filter=?', intval($filter['in_filter']));
+            $where .= $this->db->placehold(' AND in_filter=?', intval($filter['in_filter']));
 		
-		$id_filter = '';	
 		if(!empty($filter['id']))
-			$id_filter = $this->db->placehold('AND id in(?@)', (array)$filter['id']);
+            $where .= $this->db->placehold(' AND id in(?@)', (array)$filter['id']);
 		
-		// Выбираем свойства
-		$query = $this->db->placehold("SELECT id, name, position, in_filter, visible, visible_category, text, type, units, on_show FROM __features
-									WHERE 1
-									$category_id_filter $in_filter_filter $id_filter ORDER BY position");
+		$query = $this->db->placehold("SELECT id, name, position, in_filter, in_yandex, visible, visible_category, text, type, units, on_show FROM __features
+									WHERE 1 $where ORDER BY position");
 		$this->db->query($query);
 		return $this->db->results();
 	}
@@ -39,7 +36,7 @@ class Features extends Simpla
 	// Выбираем свойство
 	function get_feature($id)
 	{
-		$query = $this->db->placehold("SELECT id, name, position, in_filter, visible, visible_category, text, type, units, on_show FROM __features WHERE id=? LIMIT 1", intval($id));
+		$query = $this->db->placehold("SELECT id, name, position, in_filter, in_yandex, visible, visible_category, text, type, units, on_show FROM __features WHERE id=? LIMIT 1", intval($id));
 
 		$this->db->query($query);
 		$feature = $this->db->result();
@@ -148,13 +145,7 @@ class Features extends Simpla
 
 	public function get_options($filter = array())
 	{
-		$feature_id_filter = '';
-		$product_id_filter = '';
-		$category_id_filter = '';
-		$visible_filter = '';
-		$brand_id_filter = '';
-		$features_filter = '';
-        $visible_feature_item = '';
+        $inner = '';
         $where = '';
         $select = '';
 
@@ -172,32 +163,29 @@ class Features extends Simpla
             $where .= $this->db->placehold(' AND po.product_id in(?@)', (array)$filter['product_id']);
 
 		if(isset($filter['category_id']))
-			$category_id_filter = $this->db->placehold('INNER JOIN __products_categories pc ON pc.product_id=po.product_id AND pc.category_id in(?@)', (array)$filter['category_id']);
+            $inner .= $this->db->placehold(' INNER JOIN __products_categories pc ON pc.product_id=po.product_id AND pc.category_id in(?@)', (array)$filter['category_id']);
 
 		if(isset($filter['visible']))
-			$visible_filter = $this->db->placehold('INNER JOIN __products p ON p.id=po.product_id AND visible=?', intval($filter['visible']));
+            $inner .= $this->db->placehold(' INNER JOIN __products p ON p.id=po.product_id AND visible=?', intval($filter['visible']));
 
 		if(isset($filter['brand_id']))
-			$brand_id_filter = $this->db->placehold('AND po.product_id in(SELECT id FROM __products WHERE brand_id in(?@))', (array)$filter['brand_id']);
+            $where .= $this->db->placehold(' AND po.product_id in(SELECT id FROM __products WHERE brand_id in(?@))', (array)$filter['brand_id']);
 
         // Выборка свойств товара, показываемых в каталоге
         if(isset($filter['visible_feature_item']))
         {
-            $visible_feature_item = 'LEFT JOIN __features f ON f.id = po.feature_id';
+            $inner .= ' LEFT JOIN __features f ON f.id = po.feature_id';
             $where .= $this->db->placehold(' AND f.visible_category = ?', intval($filter['visible_feature_item']));
             $select .= ', f.name';
         }
 
-        //
         if(isset($filter['in_filter']))
-            $in_filter_filter = $this->db->placehold('AND in_filter=?', intval($filter['in_filter']));
+            $where = $this->db->placehold(' AND in_filter=?', intval($filter['in_filter']));
 
 		$query = $this->db->placehold("SELECT po.product_id, po.feature_id, po.value, count(po.product_id) as count $select
                                        FROM __options po
-                                       $visible_feature_item
-                                       $visible_filter
-                                       $category_id_filter
-                                       WHERE 1 $where $brand_id_filter $features_filter
+                                       $inner
+                                       WHERE 1 $where
                                        GROUP BY po.feature_id, po.value
                                        ORDER BY value=0, -value DESC, value");
 		$this->db->query($query);

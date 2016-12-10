@@ -9,13 +9,6 @@ class ProductAdmin extends Simpla
 {
 	public function fetch()
 	{	
-		//Дата последнего обновления товара для Sitemap
-		if(!empty($this->config->php_timezone))
-		{
-			date_default_timezone_set($this->config->php_timezone);
-		}
-		$last_update = date('Y-m-d H:i:s');
-		
 		$options = array();
 		$product_categories = array();
 		$variants = array();
@@ -46,7 +39,7 @@ class ProductAdmin extends Simpla
 			$product->annotation = $this->request->post('annotation');
 			$product->body = $this->request->post('body');
 			
-			$product->last_update = $last_update;
+			$product->last_update = date('Y-m-d H:i:s');
 
             $product->likes = $this->request->post('likes', 'integer');
 
@@ -118,7 +111,7 @@ class ProductAdmin extends Simpla
 			{
 				if(empty($product->id))
 				{
-					$product->created = $last_update;
+				    $product->created = date('Y-m-d H:i:s');
 	  				$product->id = $this->products->add_product($product);
 	  				$product = $this->products->get_product($product->id);
 					$this->design->assign('message_success', 'added');

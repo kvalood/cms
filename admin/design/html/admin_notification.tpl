@@ -13,7 +13,7 @@
 {if $messages.error}
     {foreach $messages.error as $message}
     <div class="info warning clear">
-        <i class="icon-remove"></i>
+        <i class="icon-close"></i>
         <span>{$lang->$message.key}</span>
         {if $message.data}
             <div class="info__data">{$message.data}</div>

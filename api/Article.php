@@ -72,17 +72,17 @@ class Article extends Simpla
 		//Для показа полных URL (при выводе блока "список материалов категории")
 		if(!empty($filter['all_url']))
 		{
-			$select = ', m.id_show, m.url as category_url';
-			$inner = $this->db->placehold('INNER JOIN __menu as m ON m.id_show = a.category AND m.type = 2 ');
+			$select = ', c.url as category_url';
+			$inner = $this->db->placehold('INNER JOIN __article_categories as c ON a.category = c.id');
 		}	
 		
 		$query = $this->db->placehold("
-			SELECT a.id,a.name,a.url,a.annotation,a.text,a.visible,a.field,a.prev_images,a.date,a.category,a.date_update $select
+			SELECT a.id,a.name,a.url,a.annotation,a.text,a.visible,a.date,a.category,a.date_update $select
 			FROM __article as a 
 			$inner
 			WHERE 1 $category_filter $visible_filter $keyword_filter 
 			ORDER BY $sort $limit");
-		
+
 		$this->db->query($query);
 		return $this->db->results();
 	}
@@ -124,12 +124,15 @@ class Article extends Simpla
 	public function get_article($id)
 	{
 		if(is_int($id))
-			$where = $this->db->placehold(' WHERE b.id=? ', intval($id));
+			$where = $this->db->placehold(' b.id=? ', intval($id));
 		else
-			$where = $this->db->placehold(' WHERE b.url=? ', $id);
+			$where = $this->db->placehold(' b.url=? ', $id);
 		
-		$query = $this->db->placehold("SELECT b.id, b.url, b.name, b.annotation, b.text, b.meta_title, b.meta_keywords, b.meta_description, b.visible, b.prev_images, b.field, b.date, b.category, b.date_update FROM __article b $where LIMIT 1");
-		
+		$query = $this->db->placehold("SELECT b.id, b.url, b.name, b.annotation, b.text, b.meta_title, b.meta_keywords, b.meta_description, b.visible, b.date, b.category, b.date_update, c.url as category_url
+            FROM __article as b 
+            LEFT JOIN __article_categories as c ON b.category = c.id            
+            WHERE $where LIMIT 1");
+
 		if($this->db->query($query))
 			return $this->db->result();
 		else
@@ -183,13 +186,7 @@ class Article extends Simpla
 		}
 		return false;
 	}
-	
-	//Удалить изображение материала
-	public function delete_image($filename)
-	{
-		@unlink($image_dir = $this->config->root_dir.$this->config->article_images_dir.$filename);		
-	}
-	
+
 	
 	
 	/***
@@ -208,7 +205,7 @@ class Article extends Simpla
                 $keyword_filter .= $this->db->placehold(' AND (name LIKE "%'.$this->db->escape(trim($keyword)).'%"');
         }
 
-		$query = $this->db->placehold("SELECT id, name, template FROM __article_categories WHERE 1 $keyword_filter ORDER BY id DESC");
+		$query = $this->db->placehold("SELECT id, name, template, url FROM __article_categories WHERE 1 $keyword_filter ORDER BY id DESC");
 		$this->db->query($query);
 		return $this->db->results();
 	}
@@ -216,7 +213,13 @@ class Article extends Simpla
 	// Выборка категории
 	public function get_category($id)
 	{
-		$query = $this->db->placehold("SELECT * FROM __article_categories b WHERE id=? LIMIT 1",$id);
+        if(is_int($id))
+            $where = $this->db->placehold(' id=? ', intval($id));
+        else
+            $where = $this->db->placehold(' url=? ', $id);
+
+		$query = $this->db->placehold("SELECT * FROM __article_categories WHERE $where LIMIT 1");
+
 		if($this->db->query($query))
 			return $this->db->result();
 		else

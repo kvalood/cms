@@ -74,11 +74,6 @@ class View extends Simpla
 			$this->design->assign('currency',	$this->currency);
 			$this->design->assign('user',       $this->user);
 			$this->design->assign('group',      $this->group);
-            /*
-			$this->design->assign('config',		$this->config);
-			$this->design->assign('settings',	$this->settings);
-            */
-
 
 			// Настраиваем плагины для смарти
 			$this->design->smarty->registerPlugin("function", "get_brands",              [$this, 'get_brands_plugin']);
@@ -87,7 +82,9 @@ class View extends Simpla
 			$this->design->smarty->registerPlugin("function", "get_new_products",        [$this, 'get_new_products_plugin']);
 			$this->design->smarty->registerPlugin("function", "get_discounted_products", [$this, 'get_discounted_products_plugin']);
 			$this->design->smarty->registerPlugin("function", "get_article",             [$this, 'get_article_plugin']);
-			$this->design->smarty->registerPlugin("function", "get_slider",              [$this, 'get_slider_plugin']);
+
+            // Изображения баннера
+			$this->design->smarty->registerPlugin("function", "get_banner_images",       [$this, 'get_banner_images_plugin']);
 
             // вывод меню
             $this->design->smarty->registerPlugin("function", "get_menu",                [$this, 'get_menu_plugin']);
@@ -428,13 +425,13 @@ class View extends Simpla
 	}
 	
 	//Слайдер
-	public function get_slider_plugin($params,  &$smarty)
+	public function get_banner_images_plugin($params,  &$smarty)
 	{
-		if(!empty($params['var']) AND !empty($params['slider_id'])) {
+		if(!empty($params['var']) AND !empty($params['banner_id'])) {
 
             // Показываем только видимые слайды
             $params['visible'] = 1;
-            $smarty->assign($params['var'], $this->slider->get_slides($params));
+            $smarty->assign($params['var'], $this->banner->get_banner_images($params));
         }
 	}
 }

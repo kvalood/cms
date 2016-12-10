@@ -4,37 +4,18 @@
 	{$meta_title = 'Новое свойство' scope=parent}
 {/if}
 
-{* дополнительные опции *}
-{capture name=option}
-	<h3>Сброс значений свойств <span id="help"><i>?</i><div id="text">Внимание! Сброс значений свойств подразумевает очистку свойств от лишних символов. Удаляется все кроме цифер и точек у свойств с типом 'Слайдер - диапазон'. Запятые преобразуются в точки.</div></span></h3>
-	<a href="index.php?module=FeaturesAdmin&method=reset" class="button_green captufe_all">Сбросить</a>	
-{/capture}
-
-{include file='tinymce_init.tpl'}
-
-
 <form method=post id="product" class="board">
 	<input type=hidden name='session_id' value='{$smarty.session.id}'>
 	<input name=id type="hidden" value="{$feature->id|escape}"/> 
 	
 	<div class="content_header">
-		<a href="index.php?module=FeaturesAdmin">← Назад</a>	
-		<a href="index.php?module=FeatureAdmin">+ Добавить еще одно свойство</a>	
-		
-		<input class="button_green button_save" type="submit" name="" value="Сохранить" />
-	</div>
-	
-	{if $message_success}
-	<div class="message_box message_success">
-		<span>{if $message_success=='added'}Свойство добавлено{elseif $message_success=='updated'}Свойство обновлено{/if}</span>
-	</div>
-	{/if}
+        <h1>{if $feature->id}Свойство - "{$feature->name|escape}"{else}Создание свойства{/if}</h1>
 
-	{if $message_error}
-	<div class="message_box message_error">
-		<span>{if $message_error=='empty_name'}У свойства должно быть название{/if}</span>
+        <div class="buttons">
+		    <a href="{url module=FeaturesAdmin id=null}" class="button back">Назад</a>
+		    <input class="button save" type="submit" name="" value="Сохранить" />
+        </div>
 	</div>
-	{/if}
 
 	<div id="name">
 		<label style="display: block;margin-bottom: 2px;">Название свойства</label>
@@ -79,6 +60,12 @@
 							<span>Использовать в фильтре</span>
 						</label>
 					</li>
+                    <li>
+                        <label class="fancy-checkbox">
+                            <input type="checkbox" name="in_yandex" {if $feature->in_yandex}checked{/if}>
+                            <span>Выгружать в Яндекс.Маркет</span>
+                        </label>
+                    </li>
                     <li>
                         <label class="fancy-checkbox">
                             <input type="checkbox" name="visible" {if $feature->visible or !$feature->id}checked{/if}>
@@ -129,3 +116,5 @@
 	</div>
 
 </form>
+
+{include file='admin_tinymce.tpl'}

@@ -419,7 +419,7 @@ a{text-decoration:none;}
 .capture_head{overflow: hidden;margin-bottom: 8px;}
 .capture_head a{margin-right:3px}
 
-.board_content{overflow:hidden;margin-top: 15px;}
+.board_content{margin-top: 15px;}
 .left_board{width: 710px;float: left;}
 .right_board{width: 180px;float:right;}
 .board_footer{overflow: hidden;}
@@ -451,7 +451,6 @@ ul.filter ul{margin:0px 15px !important;}
 #list .tree_row{overflow:hidden;}
 #list .tree_row:hover{background-color: #DBDDE7;}
 
-#list_form > #list > .row:nth-child(2n+1){background-color: #DBDDE7;}
 #list .cell{vertical-align:top;padding:0;padding-top:10px;padding-bottom:7px;float:left}
 
 .sortable .cell{display:inline-block;vertical-align:middle;padding: 4px;}
@@ -511,9 +510,8 @@ ul.filter ul{margin:0px 15px !important;}
 .list_top > div{float:left;}
 
 /* Панелька управления */
-div#action{margin: 20px 0px;overflow: hidden;}
+div#action{margin: 20px 0;}
 div#action input#apply_action{float:right;display:block}
-div#action span#select{padding-left:20px}
 div#action span#move_to_page,div#action span#move_to_category,div#action span#move_to_brand{display:none}
 
 
@@ -542,16 +540,18 @@ div#action span#move_to_page,div#action span#move_to_category,div#action span#mo
 #product #name .name_product{margin-right:17px;font-size:15px;padding:1px 8px;height:25px;display:inline-block;width:360px;vertical-align:top}
 
 
-#product_brand{float: right;width: 270px;display: block;text-align: right;}
-#product_brand label,#product_categories label{float: left;font-weight: bold;margin-right:10px;}
-#product_brand select{width:200px;margin-left:10px;font-size:14px;color:#5F5F5F}
-#product_categories{float:left;overflow:hidden}
-#product_categories select{width:300px;margin-right:15px;font-size:14px;color:#5F5F5F}
-#product_categories ul li{margin-bottom:5px}
-#product_categories div{float:left;}
 #product_categories span i{font-style:normal}
 #product_categories span.add{padding-left:24px;background:url(../images/plus-circle.png) no-repeat scroll 0 4px transparent}
-#product_categories span.delete{background:url(../images/cross-circle-frame.png) no-repeat scroll 0 4px transparent;background-repeat:no-repeat;padding-left:24px}
+#product_categories span.delete{
+    width: 25px;
+    height: 25px;
+    display: inline-block;
+    line-height: 25px;
+    vertical-align: middle;
+    text-align: center;
+    cursor: pointer;
+    color: red;
+}
 
 #variants > ul:nth-child(n+2){border-top: 1px solid #CBCDD7;padding-top: 10px;}
 #variants_block,#currencies_block{margin-bottom: 15px;background-color:#DBDDE7;border:1px solid #CBCDD7;overflow:hidden;padding:3px 0 15px;margin-top:20px;border-radius:3px}
@@ -659,24 +659,7 @@ textarea.editor_small{height:150px;width: 910px;}
 .list_checkbox label{cursor:pointer;}
 
 
-.fancy-radio,.fancy-checkbox{position:relative;cursor:pointer}
-.fancy-radio input,.fancy-checkbox input{opacity:0;position:absolute;display: none;}
-.fancy-radio span:before,.fancy-radio span:after,.fancy-checkbox span:before,.fancy-checkbox span:after{box-sizing:border-box;content:'';display:block;position:absolute;transition:all .25s;top:2px}
 
-.fancy-checkbox{padding-left: 40px;font-size: 14px;margin-right: 18px;margin-top: 4px;display: inline-block;vertical-align: top;}
-.fancy-checkbox span:before{width:34px;height:17px;border-radius:11px;left:0;background:#C3C5C4;border:1px solid #B3B5B4}
-.fancy-checkbox span:after{width:15px;height:15px;border-radius:10px;background:none repeat scroll 0 0 #FFF;left:1px;top:3px}
-.fancy-checkbox input:checked + span:after{left:18px}
-.fancy-checkbox input:checked + span:before{background:#5BB75B;border:1px solid #49A449}
-.fancy-checkbox input:focus + span:before{border:1px solid #8f9391}
-.fancy-checkbox input:focus:checked + span:before{border:1px solid #0e6351}
-
-.fancy-radio{padding-left: 22px;font-size: 14px;margin-right: 18px;margin-top: 4px;display: inline-block;vertical-align: top;}
-.fancy-radio span:before{width: 17px;height: 17px;border-radius:50%;top:2px;left:0;background:#fff;border:1px solid #c3c5c4}
-.fancy-radio span:after{border-radius:50%;background:#fff;top:12px;left:10px;width:0;height:0}
-.fancy-radio input:checked + span:after{width: 9px;height: 9px;top: 6px;left: 4px;}
-.fancy-radio input:checked + span:before{background:#5BB75B;border: 1px solid #49A449;}
-.fancy-radio input:focus + span:before{border:1px solid #0e6351}
 
 hr{border-color: #fff;  margin-top: 15px;  display: block;}
 

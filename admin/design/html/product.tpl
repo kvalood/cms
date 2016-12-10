@@ -14,19 +14,20 @@
 <script>
 $(function() {
 
-	//*
-	// Добавление категории
-	$('#product_categories .add').click(function() {
-		$("#product_categories ul li:last").clone(false).appendTo('#product_categories ul').fadeIn('slow').find("select[name*=categories]:last").focus();
-		$("#product_categories ul li:last span.add").hide();
-		$("#product_categories ul li:last span.delete").show();
-		return false;		
-	});
+    // Добавление категории
+    $(document).on('click', '#product_categories .add', function(){
+        var pc_parent = $('#product_categories > ul > li:last-of-type').clone(true),
+            bth_remove = pc_parent.find('> span').removeClass('hidden'),
+            pc_select = pc_parent.find('select[name*="categories"]').clone(false);
+        $('#product_categories ul li:last-of-type').after('<li></li>').parent().find('li:last').append(pc_select).append(bth_remove);
+        $('select').selectpicker('refresh');
+        return false;
+    });
 
-	// Удаление категории
-	$("#product_categories .delete").live('click', function() {
-		$(this).closest("li").fadeOut(200, function() { $(this).remove(); });
-		return false;
+    // Удаление категории
+    $(document).on('click', '#product_categories .delete', function() {
+		$(this).closest("li").remove();
+        return false;
 	});
 
 	// Сортировка вариантов
@@ -49,7 +50,7 @@ $(function() {
 	$(".images ul").sortable({ tolerance: 'pointer'});
 
 	// Удаление изображений
-	$(".images a.delete").live('click', function() {
+    $(document).on('click', '.images a.delete', function() {
 		 $(this).closest("li").fadeOut(200, function() { $(this).remove(); });
 		 return false;
 	});
@@ -100,7 +101,7 @@ $(function() {
 		      reader.readAsDataURL(f);
 		    }
 		}
-		$('.dropInput').live("change", handleFileSelect);
+		$(document).on('change', '.dropInput', handleFileSelect);
 	};
 
 	// Удаление варианта
@@ -218,7 +219,7 @@ $(function() {
 
 	
 	// Удаление связанного товара
-	$(".related_products a.delete").live('click', function() {
+	$(document).on('click', '.related_products a.delete', function() {
 		 $(this).closest("div.row").fadeOut(200, function() { $(this).remove(); });
 		 return false;
 	});
@@ -450,89 +451,101 @@ function translit(str)
 {/literal}
 
 
-<form method=post id="product" enctype="multipart/form-data" class="board">
-	<input name=id type="hidden" value="{$product->id|escape}"/>
-    <input type=hidden name="session_id" value="{$smarty.session.id}">
+<form method="post" enctype="multipart/form-data">
+	<input name="id" type="hidden" value="{$product->id|escape}"/>
+    <input type="hidden" name="session_id" value="{$smarty.session.id}">
 
 	<div class="content_header">
-		<a href="index.php?module=ProductsAdmin">← Назад</a>
-		{if $product->id}<a href="../products/{$product->url}" target="_blank">Открыть товар на сайте</a>{/if}
-		
-		<input class="button_green button_save" type="submit" name="" value="Сохранить" />
+        <h1>{if $product}Редактирование товара{else}Создание товара{/if}</h1>
+
+        <div class="buttons">
+            <a href="{url module=ProductsAdmin id=null}" class="button back">Назад</a>
+            {if $product->id}<a href="../products/{$product->url}" target="_blank" class="button blue">Открыть товар на сайте</a>{/if}
+            <input class="button save" type="submit" name="save" value="Сохранить" />
+        </div>
 	</div>
 
+    <div class="board block">
+        <h2>Основные настройки</h2>
+        <ul class="row">
 
-	{if $message_success}
-	<div class="message_box message_success">
-		<span>{if $message_success=='added'}Товар добавлен{elseif $message_success=='updated'}Товар изменен{else}{$message_success|escape}{/if}</span>
-	</div>
-	{/if}
+            <li class="col s12">
+                <label class="required">Название товара</label>
+                <input name="name" type="text" value="{$product->name|escape}"/>
+            </li>
 
-	{if $message_error}
-	<div class="message_box message_error">
-		<span>{if $message_error=='url_exists'}Товар с таким адресом уже существует{elseif $message_error=='empty_name'}Введите название{else}{$message_error|escape}{/if}</span>
-	</div>
-	{/if}
+            <li class="col s12 sm3{if !$categories} hidden{/if}" id="product_categories">
+                <label>Категория</label>
 
+                <ul>
+                {foreach $product_categories as $product_category name=categories}
+                    <li>
+                        <select name="categories[]">
+                            {function name=category_select level=0}
+                                {foreach $categories item=category}
+                                    <option value='{$category->id}' {if $category->id == $selected_id}selected{/if} category_name='{$category->name|escape}'>{section name=sp loop=$level}&nbsp;&nbsp;&nbsp;&nbsp;{/section}{$category->name|escape}</option>
+                                    {category_select categories=$category->subcategories selected_id=$selected_id  level=$level+1}
+                                {/foreach}
+                            {/function}
+                            {category_select categories=$categories selected_id=$product_category->id}
+                        </select>
+                        <span class="delete icon-close{if $smarty.foreach.categories.first} hidden{/if}" title="Удалить"></span>
+                    </li>
+                {/foreach}
+                </ul>
+                <span class="add{if not $smarty.foreach.categories.first} hidden{/if}"><i class="dash_link">Дополнительная категория</i></span>
 
-		<div id="name">
-			<label style="display: block;margin-bottom: 2px;">Название товара</label>
-			<input class="name_product" name=name type="text" value="{$product->name|escape}" placeholder="Название товара"/> 
-			 
-			<label class="fancy-checkbox">
-				<input type="checkbox" name="visible" {if $product->visible}checked{/if}>
-				<span>Активен</span>
-			</label>
-			
-			<label class="fancy-checkbox">
-				<input type="checkbox" name="featured" {if $product->featured}checked{/if}>
-				<span>Рекомендуемый</span>
-			</label>
-		</div>
-		
-		<div class="board_subhead">
-			<div id="product_categories" {if !$categories}style='display:none;'{/if}>
-				<label>Категория</label>
-				<div>
-					<ul>
-						{foreach $product_categories as $product_category name=categories}
-						<li>
-							<select name="categories[]">
-								{function name=category_select level=0}
-								{foreach $categories item=category}
-										<option value='{$category->id}' {if $category->id == $selected_id}selected{/if} category_name='{$category->name|escape}'>{section name=sp loop=$level}&nbsp;&nbsp;&nbsp;&nbsp;{/section}{$category->name|escape}</option>
-										{category_select categories=$category->subcategories selected_id=$selected_id  level=$level+1}
-								{/foreach}
-								{/function}
-								{category_select categories=$categories selected_id=$product_category->id}
-							</select>
-							<span {if not $smarty.foreach.categories.first}style='display:none;'{/if} class="add"><i class="dash_link">Дополнительная категория</i></span>
-							<span {if $smarty.foreach.categories.first}style='display:none;'{/if} class="delete"><i class="dash_link">Удалить</i></span>
-						</li>
-						{/foreach}		
-					</ul>
-				</div>
-			</div>
-			
-			<div id="product_brand" {if !$brands}style='display:none;'{/if}>
-				<label>Бренд</label>
-				<select name="brand_id">
-					<option value='0' {if !$product->brand_id}selected{/if} brand_name=''>Не указан</option>
-					{foreach $brands as $brand}
-						<option value='{$brand->id}' {if $product->brand_id == $brand->id}selected{/if} brand_name='{$brand->name|escape}'>{$brand->name|escape}</option>
-					{/foreach}
-				</select>
-			</div>
-		</div>
+            </li>
+
+            <li class="col s12 sm3{if !$brands} hidden{/if}" id="product_brand">
+                <label>Бренд</label>
+                <select name="brand_id">
+                    <option value='0' {if !$product->brand_id}selected{/if} brand_name=''>Не указан</option>
+                    {foreach $brands as $brand}
+                        <option value='{$brand->id}' {if $product->brand_id == $brand->id}selected{/if} brand_name='{$brand->name|escape}'>{$brand->name|escape}</option>
+                    {/foreach}
+                </select>
+            </li>
+
+            <li class="col s12 sm2">
+                <label class="fancy-checkbox">
+                    <input type="checkbox" name="visible" {if $product->visible}checked{/if}>
+                    <span>Активен</span>
+                </label>
+
+                <label class="fancy-checkbox">
+                    <input type="checkbox" name="featured" {if $product->featured}checked{/if}>
+                    <span>Рекомендуемый</span>
+                </label>
+            </li>
 
 
-		
+
+
+            <li class="col s12">
+                <label>Текст материала</label>
+                <textarea name="body" class="full_text">{$article->text|escape}</textarea>
+            </li>
+
+            <li class="col s12">
+                <label>Краткое описание</label>
+                <textarea name="annotation" class="full_text">{$article->annotation|escape}</textarea>
+            </li>
+
+        </ul>
+    </div>
+
+
 		
 		<!-- Варианты товара -->
 		<div id="variants_block" {assign var=first_variant value=$product_variants|@first}{if $product_variants|@count <= 1 && !$first_variant->name}class=single_variant{/if}>
 			<ul id="header">
 				<li class="variant_move"></li>
-				<li class="variant_name">Название варианта</li>
+                {*size_color*}
+                {*<li class="variant_name">Название варианта</li>*}
+                <li class="variant_name">{if $settings->v_attr1}{$settings->v_attr1}{else}Размер{/if}</li>
+                <li class="variant_color">{if $settings->v_attr2}{$settings->v_attr2}{else}Цвет{/if}</li>
+                {*/size_color*}
 				<li class="variant_sku">Артикул</li>	
 				<li class="variant_price">Цена, {$currency->sign}</li>	
 				<li class="variant_discount">Старая, {$currency->sign}</li>	
@@ -547,8 +560,10 @@ function translit(str)
 					<input name="variants[id][]" type="hidden" value="{$variant->id|escape}" />
 					<input name="variants[name][]" type="text" value="{$variant->name|escape}" />
 					<a class="del_variant" href=""><img src="design/images/cross-circle-frame.png" alt="" /></a>
-				</li>	
-			
+				</li>
+                {*size_color*}
+                <li class="variant_color"><input name="variants[color][]" type="" value="{$variant->color|escape}" /></li>
+                {*/size_color*}
 				<li class="variant_sku">       <input name="variants[sku][]"           type="text"   value="{$variant->sku|escape}" /></li>
 				<li class="variant_price">     <input name="variants[price][]"         type="text"   value="{$variant->price|escape}" /></li>
 				<li class="variant_discount">  <input name="variants[compare_price][]" type="text"   value="{$variant->compare_price|escape}" /></li>
@@ -598,7 +613,10 @@ function translit(str)
 			<ul id=new_variant style='display:none;'>
 				<li class="variant_move"><div class="move_zone"></div></li>
 				<li class="variant_name"><input name="variants[id][]" type="hidden" value="" /><input name="variants[name][]" type="text" value="" placeholder="Название"/><a class="del_variant" href=""><img src="design/images/cross-circle-frame.png" alt="" /></a></li>
-				<li class="variant_sku"><input name="variants[sku][]" type="text" value="" placeholder="Артикул"/></li>
+                {*size_color*}
+                <li class="variant_color"><input name="variants[color][]" type="" value="" /></li>
+                {*/size_color*}
+                <li class="variant_sku"><input name="variants[sku][]" type="text" value="" placeholder="Артикул"/></li>
 				<li class="variant_price"><input  name="variants[price][]" type="text" value="" placeholder="Цена"/></li>
 				<li class="variant_discount"><input name="variants[compare_price][]" type="text" value="" placeholder="Старая цена"/></li>
 				<li class="variant_amount"><input name="variants[stock][]" type="text" value="∞" />{$settings->units}</li>
@@ -625,6 +643,8 @@ function translit(str)
                     </div>
                 </li>
 			</ul>
+
+            <div id="popup_images"></div>
 
 			<span class="add" id="add_variant"><i class="dash_link">Добавить вариант</i></span>
 		</div>

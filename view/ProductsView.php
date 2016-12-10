@@ -199,11 +199,11 @@ class ProductsView extends View
             if (!empty($ids)) {
                 $ids = array_keys($ids);
                 $features_available = $this->features->get_options(['product_id' => $ids, 'category_id' => $category->children, 'feature_id' => $features_ids]);
+                $f_av = [];
                 foreach ($features_available as $key => $f) {
-                    $features_available[$f->feature_id][] = $f->value;
-                    unset($features_available[$key]);
+                    $f_av[$f->feature_id][] = $f->value;
                 }
-                $this->design->assign('f_av', $features_available);
+                $this->design->assign('f_av', $f_av);
             }
 
             $this->design->assign('features', $all_features);

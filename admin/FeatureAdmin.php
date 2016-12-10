@@ -13,6 +13,7 @@ class FeatureAdmin extends Simpla
 			$feature->id = $this->request->post('id', 'integer');
 			$feature->name = $this->request->post('name');
 			$feature->in_filter = $this->request->post('in_filter', 'boolean');
+            $feature->in_yandex = $this->request->post('in_yandex', 'boolean');
 			$feature->text = $this->request->post('text');
 			$feature->type = $this->request->post('type', 'integer');
 			$feature->units = $this->request->post('units', 'string');

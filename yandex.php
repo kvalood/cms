@@ -48,14 +48,17 @@ print "</categories>
 $simpla->db->query("SET SQL_BIG_SELECTS=1");
 // Товары
 $simpla->db->query("SELECT v.price, v.compare_price as compare_price, v.id as variant_id, p.name as product_name, v.name as variant_name, v.position as variant_position, p.id as product_id, p.url, p.annotation, pc.category_id, i.filename as image
+					,p.brand_id, b.name as brand_name
 					FROM __variants v LEFT JOIN __products p ON v.product_id=p.id
 					
+					LEFT JOIN __brands b ON p.brand_id = b.id
 					LEFT JOIN __products_categories pc ON p.id = pc.product_id AND pc.position=(SELECT MIN(position) FROM __products_categories WHERE product_id=p.id LIMIT 1)	
 					LEFT JOIN __images i ON p.id = i.product_id AND i.position=(SELECT MIN(position) FROM __images WHERE product_id=p.id LIMIT 1)	
 					WHERE p.visible AND p.ymarket > 0 AND (v.stock >0 OR v.stock is NULL) GROUP BY v.id ORDER BY p.id, v.position ");
 print "<offers>
 ";
- 
+
+$products = $simpla->db->results();
 
 $currency_code = reset($currencies)->code;
 
@@ -63,39 +66,56 @@ $currency_code = reset($currencies)->code;
 // так они нам одновременно не нужны - мы всё равно сразу же отправляем товар на вывод.
 // Таким образом используется памяти только под один товар
 $prev_product_id = null;
-while($p = $simpla->db->result())
+//while($p = $simpla->db->result())
+foreach($products as $p)
 {
-$variant_url = '';
-if ($prev_product_id === $p->product_id)
-	$variant_url = '?variant='.$p->variant_id;
-$prev_product_id = $p->product_id;
+    $variant_url = '';
+    if ($prev_product_id === $p->product_id)
+        $variant_url = '?variant='.$p->variant_id;
+    $prev_product_id = $p->product_id;
 
-$price = round($simpla->money->convert($p->price, $main_currency->id, false),2);
-$compare_price = round($simpla->money->convert($p->compare_price, $main_currency->id, false),2);
+    $price = round($simpla->money->convert($p->price, $main_currency->id, false),2);
+    $compare_price = round($simpla->money->convert($p->compare_price, $main_currency->id, false),2);
 
-print
-"
-<offer id='$p->variant_id' available='true'>
-<url>".$simpla->config->root_url.'/products/'.$p->url.$variant_url."</url>";
-print "<price>$price</price>";
-if($p->compare_price && $p->compare_price > 0)
-{
-    print "<oldprice>".$compare_price."</oldprice>";
-}
+    print
+    "
+    <offer id='$p->variant_id' available='true'>
+    <url>".$simpla->config->root_url.'/products/'.$p->url.$variant_url."</url>";
+    print "<price>$price</price>";
 
-print "
-<currencyId>".$currency_code."</currencyId>
-<categoryId>".$p->category_id."</categoryId>
-";
+    if($p->compare_price && $p->compare_price > 0)
+        print "<oldprice>".$compare_price."</oldprice>";
 
-if($p->image)
-print "<picture>".$simpla->design->resize_modifier($p->image, 300, 300)."</picture>
-";
 
-print "<name>".htmlspecialchars($p->product_name).($p->variant_name?' '.htmlspecialchars($p->variant_name):'')."</name>
-<description>".htmlspecialchars(strip_tags($p->annotation))."</description>
-</offer>
-";
+    print "
+    <currencyId>".$currency_code."</currencyId>
+    <categoryId>".$p->category_id."</categoryId>
+    ";
+
+    if($p->image)
+        print "<picture>".$simpla->design->resize_modifier($p->image, 300, 300)."</picture>
+    ";
+
+    print "<name>".htmlspecialchars($p->product_name).($p->variant_name?' '.htmlspecialchars($p->variant_name):'')."</name>
+    <description>".htmlspecialchars(strip_tags($p->annotation))."</description>";
+
+    // Загружаем бренд
+    if($p->brand_name)
+        print '<vendor>'. $p->brand_name .'</vendor>';
+
+    // Загружаем свойства товара
+    $query = $simpla->db->placehold("SELECT f.id as feature_id, f.name, po.value, po.product_id FROM __options po LEFT JOIN __features f ON f.id=po.feature_id WHERE po.product_id = ? AND f.in_yandex=1 ORDER BY f.position", $p->product_id);
+    $simpla->db->query($query);
+    $p->features = $simpla->db->results();
+
+    if($p->features) {
+        foreach ($p->features as $f) {
+            print '<param name="'.$f->name.'">'. $f->value .'</param>';
+        }
+    }
+
+    print "</offer>
+    ";
 }
 
 print "</offers>

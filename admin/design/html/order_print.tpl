@@ -200,7 +200,7 @@
 		<tr>
 			<td>
 				<span class=view_purchase>
-					{$purchase->product_name} {$purchase->variant_name} {if $purchase->sku} (артикул {$purchase->sku}){/if}			
+					{$purchase->product_name} {$purchase->variant_name} {if $purchase->sku} (артикул {$purchase->sku}){/if}
 				</span>
 			</td>
 			<td class="align_right">

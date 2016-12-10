@@ -7,85 +7,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>{$meta_title}</title>
-    <link rel="icon" href="design/images/favicon.png" type="image/x-icon" />
-
-    <link href="design/css/reset.css" rel="stylesheet" type="text/css" />
-    <link href="design/css/new_admin_style.css" rel="stylesheet" type="text/css" />
-    <link href="design/css/style_for_new_admin.css" rel="stylesheet" type="text/css" />
+    <link rel="icon" type="image/png" href="/admin/design/images/favicon.png">
 
 
-<link href='https://fonts.googleapis.com/css?family=PT+Sans:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+    <link href="/admin/design/css/reset.css" rel="stylesheet" type="text/css" />
+    <link href="/admin/design/css/new_admin_style.css" rel="stylesheet" type="text/css" />
+    <link href="/admin/design/css/style_for_new_admin.css" rel="stylesheet" type="text/css" />
+    <link href="/admin/design/css/new.css" rel="stylesheet" type="text/css" />
+    <link href="/admin/design/css/icon.css" rel="stylesheet" type="text/css" />
 
-{* jQuery *}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <link href="/admin/design/css/categories.css" rel="stylesheet" type="text/css" />
 
-{* Bootstrap *}
-<script src="design/libs/bootstrap/js/bootstrap.min.js"></script>
-<link href="design/libs/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href='https://fonts.googleapis.com/css?family=PT+Sans:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
-{* Autocomplete *}
-<script src="design/libs/autocomplete/jquery.autocomplete.min.js"></script>
-<link href="design/libs/autocomplete/styles.css" rel="stylesheet" type="text/css" />
+    {* jQuery *}
+    <script src="/admin/design/libs/jquery.2.2.4.min.js"></script>
+    <script src="/admin/design/js/jquery/jquery.form.min.js"></script>
 
-{* jQuery UI *}
-<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    {* Bootstrap *}
+    <script src="/admin/design/libs/bootstrap/js/bootstrap.min.js"></script>
+    <link href="/admin/design/libs/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+
+    {* Bootstrap multiselect *}
+    <script src="/admin/design/libs/bootstrap-select/bootstrap-select.min.js"></script>
+    <link href="/admin/design/libs/bootstrap-select/bootstrap-select.min.css" rel="stylesheet" type="text/css" />
+
+    {* Autocomplete *}
+    <script src="/admin/design/libs/autocomplete/jquery.autocomplete.min.js"></script>
+    <link href="/admin/design/libs/autocomplete/styles.css" rel="stylesheet" type="text/css" />
+
+    {* jQuery UI *}
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 
 
-    {*<script src="design/js/jquery/jquery.js"></script>
-    <script src="/js/jquery/jquery-1.8.3.min.js"></script>
-    <script src="design/js/jquery/jquery.form.js"></script>
-    <script src="design/js/jquery/jquery-ui.min.js"></script>*}
-
-    {* Для мобильных
-    <script src="design/js/jquery.mobile.custom.min.js"></script> *}
+    {* Date time picker *}
+    <script src="/admin/design/libs/datetimepicker/jquery.datetimepicker.full.min.js" type="text/javascript"></script>
+    <link href="/admin/design/libs/datetimepicker/jquery.datetimepicker.css" rel="stylesheet" type="text/css" />
 
     {* Ядро JS движка*}
-    <script src="design/js/core.js"></script>
-
-    <script src="/js/jquery.cookie.min.js"></script>
-    {if $new_orders_counter or $new_feedback_counter}
-
-    <script type="text/javascript">
-    var new_orders_counter = parseInt('{$new_orders_counter|escape}');
-    var prefix_orders = String('{$new_orders_counter|plural:"новый заказ":"новых заказов":"новых заказа"}');
-    {literal}
-    $(function(){
-        //Выводим уведомление о заказах и сообщениях в "обратной связи"
-        $(document).ready(function(){
-            if (!$.cookie('admin_new_message')) {
-                if(new_orders_counter > 0) {
-                    show_modal_message('У вас '+new_orders_counter+' '+prefix_orders+'<br/><a href="index.php?module=OrdersAdmin">Перейти к заказам</a>','black',9000,'bottom-right');
-                }
-                // Запомним в куках, что сообщения вылазили
-                $.cookie('admin_new_message', true, {
-                    expires: 1/288,
-                    path: '/'
-                });
-            }
-        });
-    });
-    {/literal}
-    </script>
-
-    {/if}
-
-    {literal}
-    <script>
-    $(function() {
-        $(document).on('click', '.menu_id', function(){
-            var tag = $(this).closest('li');
-            if(!tag.hasClass('act'))
-            {
-                tag.closest('ul').find('li.act').removeClass('act');
-                tag.addClass('act');
-                //return false;
-                //tag.removeClass('act');
-            }
-        });
-    });
-    {/literal}
-    </script>
+    <script src="/admin/design/js/core.js"></script>
 
 </head>
 <body>
@@ -100,7 +61,7 @@
 
                 <div class="col s9 m4 l3 search_box">
                     <i class="icon-search"></i>
-                    <input name="search" id="search_autocomplete" data-object="phone" placeholder="Поиск товаров, заказов" autocomplete="off" type="text">
+                    <input name="search" id="search_autocomplete" data-object="phone" placeholder="Поиск товаров/заказов" autocomplete="off" type="text">
                 </div>
 
                 <div class="col m2 l2 header_links no-mobile no-pad">
@@ -143,7 +104,9 @@
 
     <footer>
         <div class="container">
-            &copy; 2016 <a href="http://pulse-studio.ru" target="_blank">Sergey Sysa.</a> Core - SimplaCMS {$config->version} (mod. {$config->mod_version})
+            &copy; 2016 <a href="http://pulse.studio" target="_blank">Sergey Sysa.</a> Core - SimplaCMS {$config->version} (mod. {$config->mod_version})
+
+            <a href="#" class="right">Помощь по Административной панели</a>
         </div>
     </footer>
 
@@ -206,7 +169,7 @@ $(function() {
     pz.onDisconnect(function () {
         $(".ip_call").removeClass('phone');
     });
-	
+
     $(".ip_call").click( function() {
         var phone = $(this).attr('data-phone').trim();
         pz.call(phone);
@@ -230,7 +193,7 @@ $(function() {
 				{
 					NotificationBar('<img src="design/images/phone_sound.png" align=absmiddle> Звонок с '+event.from+'. <a href="index.php?module=OrderAdmin&phone='+event.from+'">Создать заказ</a>');
 				}
-			});        	     
+			});
         }
     });
 {/literal}

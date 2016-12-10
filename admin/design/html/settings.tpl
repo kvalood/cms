@@ -17,6 +17,8 @@
 
                 <ul data-tabs="tabs" class="list-group">
                     <li class="active"><a href="#basic_settings" data-toggle="tab">Основные настройки</a></li>
+                    <li><a href="#information_settings" data-toggle="tab">Информация о сайте</a></li>
+                    <li><a href="#home_settings" data-toggle="tab">Главная страница</a></li>
                     <li><a href="#product_sorting" data-toggle="tab">Настройка товаров</a></li>
                     <li><a href="#comments_settings" data-toggle="tab">Комментарии</a></li>
                     <li><a href="#formant_settings" data-toggle="tab">Форматы данных</a></li>
@@ -37,20 +39,7 @@
                                 <h2>Основные настройки сайта</h2>
                                 <ul>
                                     <li><label>Имя сайта</label><input name="site_name" type="text" value="{$settings->site_name|escape}" /></li>
-                                    <li><label>Имя компании</label><input name="company_name" type="text" value="{$settings->company_name|escape}" /></li>
-                                    <li><label>Телефон компании</label><input name="phone_site" type="text" value="{$settings->phone_site|escape}" /></li>
-                                    <li><label>Формат даты</label><input name="date_format" type="text" value="{$settings->date_format|escape}" /></li>
-                                    <li><label>Email для восстановления пароля</label><input name="admin_email" type="text" value="{$settings->admin_email|escape}" /></li>
-                                </ul>
-
-                            </div>
-                            <div class="col l6 s12">
-
-                                <h2>email оповещения</h2>
-                                <ul>
-                                    <li><label>Оповещение о заказах</label><input placeholder="email" name="order_email" type="text" value="{$settings->order_email|escape}" /></li>
-                                    <li><label>Оповещение о комментариях</label><input placeholder="email" name="comment_email" type="text" value="{$settings->comment_email|escape}" /></li>
-                                    <li><label>Обратный адрес оповещений</label><input placeholder="email" name="notify_from_email" type="text" value="{$settings->notify_from_email|escape}" /></li>
+                                    <li><label>Название компании</label><input name="company_name" type="text" value="{$settings->company_name|escape}" /></li>
                                 </ul>
 
                                 <h2>Регистрация и вход на сайт</h2>
@@ -69,6 +58,15 @@
                                     </li>
                                 </ul>
 
+                            </div>
+                            <div class="col l6 s12">
+                                <h2>email оповещения</h2>
+                                <ul>
+                                    <li><label>Оповещение о заказах</label><input placeholder="email" name="order_email" type="text" value="{$settings->order_email|escape}" /></li>
+                                    <li><label>Оповещение о комментариях</label><input placeholder="email" name="comment_email" type="text" value="{$settings->comment_email|escape}" /></li>
+                                    <li><label>Обратный адрес оповещений</label><input placeholder="email" name="notify_from_email" type="text" value="{$settings->notify_from_email|escape}" /></li>
+                                    <li><label>Email для восстановления пароля</label><input name="admin_email" type="text" value="{$settings->admin_email|escape}" /></li>
+                                </ul>
                             </div>
                         </div>
 
@@ -90,6 +88,48 @@
                             <li><label>Вертикальное положение водяного знака</label><input name="watermark_offset_y" type="text" value="{$settings->watermark_offset_y|escape}" /></li>
                             <li><label>Прозрачность знака (больше &mdash; прозрачней)</label><input name="watermark_transparency" type="text" value="{$settings->watermark_transparency|escape}" /></li>
                             <li><label>Резкость изображений (рекомендуется 20%)</label><input name="images_sharpen" type="text" value="{$settings->images_sharpen|escape}" /></li>
+                        </ul>
+                    </div>
+
+                    <div class="block tab-pane" id="information_settings">
+                        <div class="row">
+                            <div class="col s12">
+                                <h2>Информация о сайте</h2>
+                                <ul>
+                                    <li class="siteinfo_field hidden">
+                                        <input type="text" value="" name="siteinfo[name][]"/>
+                                        <textarea name="siteinfo[value][]"></textarea>
+                                    </li>
+
+                                    {foreach $settings->siteinfo as $siteinfo_name => $siteinfo_value}
+                                        <li class="siteinfo_field">
+                                            <input type="text" value="{$siteinfo_name|escape}" name="siteinfo[name][]"/>
+                                            <textarea name="siteinfo[value][]">{$siteinfo_value|escape}</textarea>
+                                            <button name="remove" class="icon-close"></button>
+                                        </li>
+                                    {/foreach}
+                                </ul>
+
+                                <p id="create_siteinfo" class="button blue">Добавить контакт</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="block tab-pane" id="home_settings">
+                        <h2>Главная страница</h2>
+                        <ul>
+                            <li>
+                                <label>страница</label>
+                                {if $articles}
+                                    <select name="home_page" class="selectpicker" data-live-search="true" data-width="100%">
+                                        {foreach $articles as $article}
+                                            <option value="{$article->id}" {if $item->type==1 && $item->id_show==$article->id}selected{/if}>{$article->name|escape}</option>
+                                        {/foreach}
+                                    </select>
+                                {else}
+                                    У вас не создано еще ни одной страницы
+                                {/if}
+                            </li>
                         </ul>
                     </div>
 
@@ -132,7 +172,6 @@
                                 </select>
                             </li>
                         </ul>
-
 
                         <h2>Настройки каталога</h2>
                         <ul>
@@ -189,6 +228,7 @@
                     <div class="block tab-pane" id="formant_settings">
                         <h2>Форматы данных</h2>
                         <ul>
+                            <li><label>Формат даты</label><input name="date_format" type="text" value="{$settings->date_format|escape}" /></li>
                             <li><label>Единицы измерения товаров</label><input name="units" type="text" value="{$settings->units|escape}" /></li>
                             <li><label>Разделитель копеек</label>
                                 <select name="decimals_point">

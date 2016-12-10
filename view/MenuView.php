@@ -16,7 +16,7 @@ class MenuView extends View
 		
 		if($r_1!='admin' OR $r_1!='order' OR $r_1!='cart')
 		{
-			//Если задан р2, сразу отображаем материал
+			//Если задан р2, сразу отображаем страницу
 			if(!empty($r_2))
 			{
 				$get_article = $this->article->get_article($r_2);
@@ -44,15 +44,7 @@ class MenuView extends View
 						if($menu_visible->name){$category->name = $menu_visible->name;}
 						$this->design->assign('category_article', $category);
 						
-						//Дополнительные поля
-						if(isset($get_article->field))
-							$get_article->field = json_decode($get_article->field);
-						
-						
-						//Предварительное изображение prev_images
-						if(isset($get_article->prev_images))
-							$get_article->prev_images = $this->config->article_images_dir.$get_article->prev_images;
-						
+
 						//Отдаем статью в шаблон
 						$this->design->assign('article', $get_article);
 						
@@ -125,9 +117,7 @@ class MenuView extends View
 								if(isset($get_article->field))
 									$get_article->field = json_decode($get_article->field);
 								
-								//Предварительное изображение prev_images
-								if(isset($get_article->prev_images))
-									$get_article->prev_images = $this->config->article_images_dir.$get_article->prev_images;
+
 
 								$this->design->assign('article', $get_article);
 								
@@ -199,18 +189,6 @@ class MenuView extends View
 							//Выбираем материалы
 							$show_category = $this->article->get_articles($filter);
 							
-							foreach($show_category as $p)
-							{
-								//Дополнительные поля
-								if(isset($p->field))
-									$p->field = json_decode($p->field);
-								
-								
-								//Предварительное изображение prev_images
-								if(isset($p->prev_images))
-									$p->prev_images = $this->config->article_images_dir.$p->prev_images;
-							}
-							
 							//Отдаем материалы
 							$this->design->assign('articles', $show_category);
 							
@@ -252,53 +230,34 @@ class MenuView extends View
 			else
 			{
 				//Главная страница
-				
-				$all_menu = $this->menu->all_list_id();
-				foreach($all_menu as $a)
-				{
-					if($a->home==1)
-					{
-						$home_page_id = (int) $a->id_show;
-						$menu_visible = $a;
-						$get_article = $this->article->get_article($home_page_id);
-					}
-				}
-				
+				$article = $this->article->get_article((int) $this->settings->home_page);
+
+                if(!empty($article))
+                    $this->design->assign('article', $article);
+
 				// Мета-теги
                 $meta_title = $meta_keywords = $meta_description = '';
 
-                if(isset($menu_visible)) {
-                    if ($menu_visible->meta_title) {
-                        $meta_title = $menu_visible->meta_title;
-                    } elseif (!empty($get_article->meta_title)) {
-                        $meta_title = $get_article->meta_title;
-                    } elseif (!empty($get_article->name)) {
-                        $meta_title = $get_article->name;
-                    } else {
-                        $meta_title = $this->settings->site_name;
-                    }
-                    if ($menu_visible->meta_keywords) {
-                        $meta_keywords = $menu_visible->meta_keywords;
-                    } elseif (!empty($get_article->meta_keywords)) {
-                        $meta_keywords = $get_article->meta_keywords;
-                    }
-                    if ($menu_visible->meta_description) {
-                        $meta_description = $menu_visible->meta_description;
-                    } elseif (!empty($get_article->meta_description)) {
-                        $meta_description = $get_article->meta_description;
-                    }
+                if (!empty($article->meta_title)) {
+                    $meta_title = $article->meta_title;
+                } elseif (!empty($article->name)) {
+                    $meta_title = $article->name;
+                } else {
+                    $meta_title = $this->settings->site_name;
+                }
+                if (!empty($article->meta_keywords)) {
+                    $meta_keywords = $article->meta_keywords;
+                }
+                if (!empty($article->meta_description)) {
+                    $meta_description = $article->meta_description;
                 }
 
 				$this->design->assign('meta_title', $meta_title);
 				$this->design->assign('meta_keywords', $meta_keywords);
-				$this->design->assign('meta_description', $meta_description);				
+				$this->design->assign('meta_description', $meta_description);
 
-                if(isset($get_article))
-				    $this->design->assign('article', $get_article);
-				
 				return $this->design->fetch('main.tpl');
 			}
 		}
 	}
-
 }

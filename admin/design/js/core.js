@@ -32,102 +32,78 @@ $(function() {
     });
 
 
-
-
-
-    /***
-     * Вызов помощи, (при нажатии на воросик), (исспользуется в capture name=option)
+    /**
+     * Форматы времени и даты
      */
-	$(document).on('click', 'span#help i', function(){
-		var obj = $(this).closest('span#help');
-		if(obj.hasClass('on'))
-		{
-			obj.removeClass('on');
-		}
-		else
-		{
-			obj.addClass('on');
-		}
-	});
-
-
-    /***
-     * Фиксируем боковое меню, при прокрутке на десктопах.
-     */
-    if($(window).width() > 640 && $(window).height() > 600){
-        $(document).scroll(function() {
-            var menu = $('.root_menu');
-            if ($(window).scrollTop() >= 60) {
-                menu.addClass('scroll');
-            }
-            else if (menu.hasClass('scroll')) {
-                menu.removeClass('scroll');
-            }
-        });
-    }
-
-
-    /***
-     * Открыть меню, для мобильных телефонов
-     */
-    $(document).on('click', '.menu_mobile', function(){
-        scrolls('open');
+    $('input[name="date"]').datetimepicker({
+        format:'d.m.Y H:i',
+        lang:'ru',
+        step: 10
     });
 
-    if($(window).width() <= 640) {
-        $(window).on("swipeleft",function(){
-            scrolls();
-        });
-    }
 
-    function scrolls(method) {
-        var top_scroll = window.pageYOffset;
-
-        if (method == 'open') {
-            $('.root_menu').addClass('open');
-            $('body').addClass('fix_b');
-            $('body').css('margin-top', -top_scroll).addClass('fix_b');
-        }
-        else {
-            $('.root_menu').removeClass('open');
-            $('body').removeClass('fix_b');
-            var scroll_t = $('body').css("margin-top").replace('-', '');
-            $('body').css('margin-top', 0).removeClass('fix_b');
-            $('html,body').animate({scrollTop: scroll_t}, 0);
-        }
-    }
+    /**
+     * Стилизуем селекты
+     */
+    $('.selectpicker, .content select').selectpicker();
 
 
+    /**
+     * Подтверждение удаления
+     */
+    $(document).on('click', 'input[name="remove"]', function(){
+        if(!confirm('Подтвердите удаление'))
+            return false;
+    });
+
+    // Подтверждение удаления в списке
+    $("form").submit(function() {
+        if($('select[name="action"]').val()=='delete' && !confirm('Подтвердите удаление'))
+            return false;
+    });
+
+    // Удалить
+    $("a.delete").click(function() {
+        $('#list input[type="checkbox"][name*="check"]').attr('checked', false);
+        $(this).closest(".article_id").find('input[type="checkbox"][name*="check"]').attr('checked', true);
+        $(this).closest("form").find('select[name="action"] option[value=delete]').attr('selected', true);
+        $(this).closest("form").submit();
+    });
+
+    /**
+     * Выделить все
+     */
+    $(document).on('click', '#check_all', function() {
+        $(this).closest('form').find('input[type="checkbox"][name*="check"]').prop('checked', $(this).closest('form').find('input[type="checkbox"][name*="check"]:not(:checked)').length>0);
+    });
+
+
+    /**
+     * Создание дополнительных полей siteinfo в разделе Настройки -> информация о сайте
+     */
+    $(document).on('click', '#create_siteinfo', function() {
+        $('.siteinfo_field.hidden').clone(true).removeClass('hidden').appendTo($(this).parent().find('ul'));
+    });
 
 
 
     /***
-     * Обработка icons a. (включить выключить, добавить в фильтр/убрать из него.)
+     * Обработка .control a. (включить выключить, добавить в фильтр/убрать из него.)
      */
+    $('.control a:not(.preview)').click(function(){
 
-    // Пометить обработанными (используется в FeedbackAdmin + Список пунктов меню +)
-    $('.icons a').click(function(){
         var icon            = $(this),
-            row             = $(this).closest('.row'),
+            row             = $(this).closest('.listItem'),
             id              = row.find('input[type="checkbox"][name*="check"]').val(),
-            visible          = row.attr("data-visible"),
-            object_name     = $('#list_form').attr('data-object'),
-            session_id      = $('input[name="session_id"]').val();
+            object_name     = $(this).closest('form').attr('data-object'),
+            session_id      = $('input[name="session_id"]').val(),
+            enable          = icon.hasClass('on')?0:1,
+            data            = icon.attr('class').split(' ')[0],
+            values = {};
 
         icon.addClass('loading_icon');
-        visible==1?visible=0:visible=1;
-        row.attr("data-visible",visible);
-
-        var values = {};
-
-        switch (icon.attr('class').split(' ')[0]) {
-            case 'enable':
-                values['visible'] = visible;
-                break
-            case 'in_filter':
-                values['in_filter'] = visible;
-                break
-        }
+        values[data]    = enable;
+        icon.hasClass('on') ? icon.removeClass('on') : icon.addClass('on');
 
         $.ajax({
             type: 'POST',
@@ -135,7 +111,6 @@ $(function() {
             data: {'object': object_name, 'id': id, 'values': values, 'session_id': session_id},
             success: function(data){
                 icon.removeClass('loading_icon');
-                show_modal_message('Изменено','message',3000,'bottom-right');
             },
             dataType: 'json'
         });
@@ -198,15 +173,49 @@ $(function() {
         $('input[name="url"]').val(generate_url());
     });
      */
+    $(document).on('click', 'button[name="generate_url"]', function(){
+        var url = generate_url($(this).closest('form').find('input[name="name"]').val());
+        $(this).closest('form').find('input[name="url"]').val(url);
 
-    function generate_url()
+        return false;
+    });
+
+    function generate_url(data)
     {
-        url = $('input[name="name"]').val();
-        url = url.replace(/[\s]+/gi, '-');
-        url = translit(url);
-        url = url.replace(/[^0-9a-z_\-]+/gi, '').toLowerCase();
-        return url;
+        data = data.replace(/[\s]+/gi, '-');
+        data = translit(data);
+        data = data.replace(/[^0-9a-z_\-]+/gi, '').toLowerCase();
+        return data;
     }
+
+    // Генерация ключевых слов.
+    $(document).on('click', 'button[name="generate_keywords"]', function(){
+
+    });
+
+
+
+
+    // Генерация meta description слов.
+    $(document).on('click', 'button[name="generate_description"]', function(){
+        descr = $('textarea[name="meta_description"]');
+        descr.val(generate_meta_description());
+        descr.scrollTop(descr.outerHeight());
+    });
+
+    function generate_meta_description()
+    {
+        if(typeof(tinyMCE.get("annotation")) =='object')
+        {
+            description = tinyMCE.get("annotation").getContent().replace(/(<([^>]+)>)/ig," ").replace(/(\&nbsp;)/ig," ").replace(/^\s+|\s+$/g, '').substr(0, 512);
+            return description;
+        }
+        else
+            return $('textarea[name=annotation]').val().replace(/(<([^>]+)>)/ig," ").replace(/(\&nbsp;)/ig," ").replace(/^\s+|\s+$/g, '').substr(0, 512);
+    }
+
+
+
 
     function translit(str)
     {
@@ -241,19 +250,58 @@ $(function() {
     }
 
 
+    /***
+     * выбор изображений в вариантах
+     */
+    var color_variant;
+
+    $(document).on('click', '#variants_block a.add_color', function() {
+        offset = $(this).offset();
+
+        color_variant = $(this);
+
+        $('#popup_images').html('');
+        $('#column_right .images ul').clone().appendTo('#popup_images');
+        $('#popup_images ul').append('<li class="empty"><input type="hidden" value="0"></li>');
+
+        $('#popup_images li').each(function() {
+            $(this).find('a').remove();
+            if($(this).find('input[type=hidden]').val() == $(color_variant).closest('li').find('input[type=hidden]').val())
+                $(this).addClass('active');
+        });
+
+        $('#popup_images').css('top', (offset.top+28)+'px').css('left', (offset.left+0) + 'px').toggle();
+        return false;
+    });
+
+    $(document).on('click', '#popup_images li', function() {
+        id = $(this).find('input').val();
+        $(color_variant).closest('li').find('input[type=hidden]').val(id);
+        if(id > 0) $(color_variant).closest('li').find('img').attr('src', 'design/images/picture.png');
+        else $(color_variant).closest('li').find('img').attr('src', 'design/images/picture_empty.png');
+        $('#popup_images').toggle();
+    });
+    function changeVarName(obj) {
+        parent = $(obj).closest('ul');
+        color = parent.find('.variant_color input').val();
+        size = parent.find('.variant_size input').val();
+        parent.find('.variant_name input').val(color + ' ' + size);
+    }
+
 
     /***
      * Сортировка списка (исспользуется в любых списках)
-     */
+
         // Сортировка списка
-    $("#list").sortable({
+    $("#sortable").sortable({
         items:             ".row",
         tolerance:         "pointer",
-        handle:            ".move_zone",
+
         scrollSensitivity: 40,
         opacity:           0.7,
         forcePlaceholderSize: true,
         axis: 'y',
+        placeholder: "ui-state-highlight",
 
         helper: function(event, ui){
             if($('input[type="checkbox"][name*="check"]:checked').size()<1) return ui;
@@ -291,6 +339,8 @@ $(function() {
         }
     });
 
+    $( "#sortable" ).disableSelection();
+     */
 
 
 });

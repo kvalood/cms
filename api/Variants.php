@@ -36,7 +36,6 @@ class Variants extends Simpla
 		if(!$product_id_filter && !$variant_id_filter)
 			return array();
 		
-		/*Absorber v.color*/
 		$query = $this->db->placehold("SELECT v.id, v.color, v.product_id , v.price, v.google_stock, NULLIF(v.compare_price, 0) as compare_price, v.sku, IFNULL(v.stock, ?) as stock, (v.stock IS NULL) as infinity, v.name, v.attachment, v.position
 					FROM __variants AS v
 					WHERE 
@@ -57,7 +56,6 @@ class Variants extends Simpla
 		if(empty($id))
 			return false;
 		
-		/*Absorber v.color*/
 		$query = $this->db->placehold("SELECT v.id, v.color, v.product_id , v.price, v.google_stock, NULLIF(v.compare_price, 0) as compare_price, v.sku, IFNULL(v.stock, ?) as stock, (v.stock IS NULL) as infinity, v.name, v.attachment
 					FROM __variants v WHERE v.id=?
 					LIMIT 1", $this->settings->max_order_amount, $id);
@@ -104,4 +102,27 @@ class Variants extends Simpla
 			@unlink($this->config->root_dir.'/'.$this->config->downloads_dir.$filename);
 		$this->update_variant($id, array('attachment'=>null));
 	}
+
+    /**
+     * Функция возвращает варианты товара
+     */
+    public function get_value_variants($filter = [])
+    {
+        $where = '';
+
+        if(!empty($filter['product_id']))
+            $where .= $this->db->placehold(' AND v.product_id in(?@)', (array)$filter['product_id']);
+        else
+            return array();
+
+        if(!empty($filter['in_stock']) && $filter['in_stock'])
+            $where .= $this->db->placehold(' AND (v.stock>0 OR v.stock IS NULL)');
+
+        $query = $this->db->placehold("SELECT v.name, v.color
+           	FROM __variants AS v WHERE 1 $where");
+
+        $this->db->query($query);
+        return $this->db->results();
+    }
+
 }

@@ -21,7 +21,34 @@ class SettingsAdmin extends Simpla
 			$this->settings->phone_site             = $this->request->post('phone_site');
 			$this->settings->date_format            = $this->request->post('date_format');
 			$this->settings->admin_email            = $this->request->post('admin_email');
-			
+
+            // Информация о сайте
+            $siteinfo = array();
+            foreach($this->request->post('siteinfo') as $n => $si)
+            {
+                foreach($si as $i => $s)
+                {
+                    if(empty($siteinfo[$i]) AND !empty($s))
+                        $siteinfo[$i] = new stdClass;
+
+                    if(!empty($s)) {
+                        if($n == 'name')
+                            $s = str_replace('-', '', $this->translit($s));
+
+                        $siteinfo[$i]->$n = $s;
+                    }
+                }
+            }
+
+            $this->settings->siteinfo = json_encode($siteinfo);
+
+
+
+
+
+            // Главная страница
+            $this->settings->home_page             = $this->request->post('home_page');
+
 			//Отображение товаров на сайте (Список, блоки)
 			$this->settings->model_type             = $this->request->post('model_type');
 			
@@ -64,7 +91,6 @@ class SettingsAdmin extends Simpla
 			$this->settings->pz_server              = $this->request->post('pz_server');
 			$this->settings->pz_password            = $this->request->post('pz_password');
 			$this->settings->pz_phones              = $this->request->post('pz_phones');
-
 
 			// Водяной знак
 			$clear_image_cache = false;
@@ -118,6 +144,11 @@ class SettingsAdmin extends Simpla
 
             $messages['success'][] = ['key' => 'saved'];
 		}
+
+        // Список всех материалов сайта для выбора главной страницы.
+        // TODO: fixed - Когда будет много материалов, будет огромная партянка. Возможно стоит выводить через ajax
+        $articles = $this->article->get_articles();
+        $this->design->assign('articles', $articles);
 
         if(isset($messages))
             $this->design->assign('messages', $messages);

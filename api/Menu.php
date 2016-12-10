@@ -79,7 +79,7 @@ class Menu extends Simpla
         $where = '';
 
         if(isset($filter['visible']))
-            $where = $this->db->placehold(' AND visible=?', intval($filter['visible']));
+            $where .= $this->db->placehold(' AND visible=?', intval($filter['visible']));
 
 		$query = $this->db->placehold("SELECT * FROM __menu WHERE category=? $where ORDER BY position", intval($id));
 		$this->db->query($query);
@@ -122,20 +122,6 @@ class Menu extends Simpla
 			return false; 
 	}
 
-    // Получить статью/категорию по типу/id_show
-    public function show_data($filter = [])
-    {
-        switch($filter['type']){
-            case '1':
-                return $this->article->get_article((int) $filter['id_show']);
-                break;
-
-            case '2':
-                return $this->article->get_category($filter['id_show']);
-                break;
-        }
-    }
-	
 	
 	//Получить пункт меню по домашней странице.
 	public function get_home()

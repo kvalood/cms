@@ -16,9 +16,6 @@ class Design extends Simpla
 {
 	public $smarty;
 
-    // Вставляемы JS код в футер
-    public $footer_code;
-
 	public function __construct()
 	{
 		parent::__construct();
@@ -53,6 +50,7 @@ class Design extends Simpla
 		$this->smarty->registerPlugin('modifier', 'time',		array($this, 'time_modifier'));		
 		$this->smarty->registerPlugin('function', 'api',		[$this, 'api_plugin']);
 
+		// Вставляемы JS код в футер
 		$this->smarty->registerPlugin('function', 'js',	        [$this, 'js_include']);
 		$this->smarty->registerPlugin('block',    'js_code',	[$this, 'js_code_block']);
         $this->smarty->registerPlugin('function', 'footer_code',[$this, 'footer_code_function']);
@@ -312,9 +310,11 @@ class Design extends Simpla
 		$smarty->assign($var, $res);
 	}
 
-
-    public function js_include($params, &$smarty) {
-
+	/**
+	* Вставляемы JS код в футер
+	*/
+    public function js_include($params, &$smarty) 
+	{
         if(isset($params['src'])) {
             $this->smarty->append('footer_code', '<script src="' . $params['src'] . '" type="text/javascript"></script>');
         }

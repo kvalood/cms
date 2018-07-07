@@ -1,40 +1,65 @@
 <?php
 
+/**
+ * Simpla CMS
+ *
+ * @copyright	2017 Denis Pikusov
+ * @link		http://simplacms.ru
+ * @author		Denis Pikusov
+ *
+ */
+
 require_once('Simpla.php');
 
 class Products extends Simpla
 {
-	/**
-	* Функция возвращает товары
-	* Возможные значения фильтра:
-	* id - id товара или их массив
-	* category_id - id категории или их массив
-	* brand_id - id бренда или их массив
-	* page - текущая страница, integer
-	* limit - количество товаров на странице, integer
-	* sort - порядок товаров, возможные значения: position(по умолчанию), name, price
-	* keyword - ключевое слово для поиска
-	* features - фильтр по свойствам товара, массив (id свойства => значение свойства)
-	*/
-	public function get_products($filter = [])
-	{
-		// По умолчанию
-		$limit = 100;
-		$page = 1;
-		$category_id_filter = '';
-		$brand_id_filter = '';
-		$product_id_filter = '';
-		$features_filter = '';
-		$keyword_filter = '';
-		$visible_filter = '';
-		$is_featured_filter = '';
-		$discounted_filter = '';
-		$in_stock_filter = '';
-		$group_by = 'GROUP BY p.id';
+
+    /**
+     * Функция возвращает товары
+     * Возможные значения фильтра:
+     * id - id товара или их массив
+     * category_id - id категории или их массив
+     * brand_id - id бренда или их массив
+     * page - текущая страница, integer
+     * limit - количество товаров на странице, integer
+     * sort - порядок товаров, возможные значения: position(по умолчанию), name, price
+     * keyword - ключевое слово для поиска
+     * features - фильтр по свойствам товара, массив (id свойства => значение свойства)
+     * features_range - фильтр по свойствам товара (слайдер диапазон), array(feature name => array(min => '', max => ''))
+     * price - фильтр по цене, array(price => array(min => , max => )
+     * visible - активный или выключенный товар, integer
+     * count_comments - посчитать колличество комментариев к товару, integer
+     * in_stock - скрыть товары не в наличии
+     * in_stock - товары не в наличии, в конце списка (сопутстующие свойства - limit_diff, in_stock = 0, out_stock = 1
+     * ymarket - товары выгружаемые в Yandex Market, integer (0/1)
+     * google - товары выгружаемые в Google Merchant, integer (0/1)
+     *
+     * @param array $filter
+     * @return array|bool
+     */
+    public function get_products($filter = array())
+    {
+
+        // По умолчанию
+        $limit = 100;
+        $page = 1;
+        $category_id_filter = '';
+        $brand_id_filter = '';
+        $product_id_filter = '';
+        $features_filter = '';
+        $keyword_filter = '';
+        $visible_filter = '';
+        $is_featured_filter = '';
+        $discounted_filter = '';
+        $in_stock_filter = '';
+        $group_by = 'GROUP BY p.id';
         $export_filter = '';
         $price_filter = '';
         $variant_join = '';
+        $order = '';
 
+        $join = '';
+        $select = '';
         $where = '';
 
 		if(isset($filter['limit']))
@@ -78,21 +103,24 @@ class Products extends Simpla
         if(isset($filter['google']))
             $export_filter .= $this->db->placehold(' AND p.google=?', intval($filter['google']));
 
-		// Сортировка товаров
-		if(!empty($filter['sort']))
-		{
-            /* сортировка по типу */
-			switch(substr($filter['sort'], 0, -1))
-			{
-                case 'position':
-                    $order = 'p.position';
-                    break;
+        if(isset($filter['count_comments'])) {
+            $join .= " LEFT JOIN __comments com ON com.object_id = p.id AND com.approved = 1 AND com.type = 'product'";
+            $select .= ', count(distinct com.id) as count_comments';
+        }
 
-				case 'name':
+        // Сортировка товаров
+        if(!empty($filter['sort']))
+        {
+            $sorting = explode('_', $filter['sort']);
+
+            // Сортировка по типу
+            switch(strtolower($sorting[0]))
+            {
+                case 'name':
                     $order = 'p.name';
                     break;
 
-				case 'created':
+                case 'created':
                     $order = 'p.created';
                     break;
 
@@ -100,36 +128,48 @@ class Products extends Simpla
                     $order = 'p.likes';
                     break;
 
-				case 'brand':
+                case 'brand':
                     $order = 'b.name';
                     break;
 
-				case 'price':
+                case 'price':
                     $order = '(SELECT -pv.price FROM __variants pv WHERE (pv.stock IS NULL OR pv.stock>0) AND p.id = pv.product_id AND pv.position=(SELECT MIN(position) FROM __variants WHERE (stock>0 OR stock IS NULL) AND product_id=p.id LIMIT 1) LIMIT 1)';
                     break;
-			}
 
-            /* сортировка по убыванию/возрастанию */
-            $filter['sort'] = str_replace(" ","",$filter['sort']);
-			if(!empty($order))
-			{
-				switch(substr($filter['sort'], -1))
-				{
-					case 'a':
-						$order .= ' ASC';
-						break;
-					case 'd':
-						$order .= ' DESC';
-						break;
-				}
-				
-				$_SESSION['sort'] = $order;
-			}
-		}
-		
-		/* Сортировка товаров */
-		if(empty($order))
-			$order = 'p.'.$this->settings->sorting_method.' '.$this->settings->sort_product_type;
+                case 'position':
+                default:
+                    $order = 'p.position';
+                    break;
+            }
+
+            // сортировка по убыванию/возрастанию
+            if(isset($sorting[1]))
+            {
+                switch(strtolower($sorting[1]))
+                {
+                    case 'asc':
+                        $order .= ' ASC';
+                        break;
+                    case 'desc':
+                        $order .= ' DESC';
+                        break;
+                }
+            } else {
+                $order .= ' DESC';
+            }
+
+            $_SESSION['sort'] = $order;
+        }
+
+        /* Сортировка товаров */
+        if(empty($order))
+            $order = 'p.'.$this->settings->order_by.' '.$this->settings->sort_order;
+
+        // Товары не в наличии в конце списка
+        if(!empty($filter['end_list'])){
+            $order = 'IF((SELECT COUNT(*) FROM __variants WHERE (stock > 0 OR stock IS NULL) AND product_id=p.id LIMIT 1), 1, 0) DESC, '.$order;
+        }
+
 
         // Фильтр по ключевому слову
 		if(!empty($filter['keyword']))
@@ -152,34 +192,30 @@ class Products extends Simpla
         if(isset($filter['price']))
         {
             if(!empty($filter['price']['min']))
-                $price_filter .= $this->db->placehold(' AND pv.price >= ? ', $this->db->escape(trim($filter['price']['min'])));
+                $price_filter .= $this->db->placehold(' AND pv.price >= ? ', (float) $this->db->escape(trim($filter['price']['min'])));
             if(!empty($filter['price']['max']))
-                $price_filter .= $this->db->placehold(' AND pv.price <= ? ', $this->db->escape(trim($filter['price']['max'])));
+                $price_filter .= $this->db->placehold(' AND pv.price <= ? ', (float) $this->db->escape(trim($filter['price']['max'])));
             $variant_join = 'LEFT JOIN __variants pv ON pv.product_id = p.id';
         }
 
         // Фильтр с типом "Группа checkbox"
-		if(!empty($filter['features']) && isset($filter['features']))
-		{
-			foreach($filter['features'] as $feature_id => $value)
-			{
-				if(count($value) == 1)
-				{
-                    $value = array_values($value);
-					$features_filter .= $this->db->placehold(' AND p.id in (SELECT o.product_id FROM __options o WHERE o.feature_id=? AND o.value LIKE "%'.$this->db->escape($value[0]).'%" ) ', $feature_id);
-				}
-				else
-				{
-					$set_filter = '';
-                    foreach($value as $key => $val)
-                    {
-                        $set_filter .= 'OR value LIKE "%'.$this->db->escape($val).'%"';
-                    }
+        if(!empty($filter['features']) && isset($filter['features']))
+        {
+            foreach($filter['features'] as $feature_id => $value)
+            {
+                $value = array_values($value);
 
-					$features_filter .= $this->db->placehold(' AND p.id in (SELECT o.product_id FROM __options o WHERE o.feature_id=? AND o.value LIKE "%'.$this->db->escape($value[0]).'%" '.$set_filter.') ', $feature_id);
-				}		
-			}
-		}
+                $set_filter = '';
+                if(count($value) > 1) {
+                    foreach ($value as $key => $val) {
+                        if ($key == 0) { continue; }
+                        $set_filter .= 'OR o.value LIKE "%' . $this->db->escape($val) . '%"';
+                    }
+                }
+
+                $features_filter .= $this->db->placehold(' AND p.id in (SELECT o.product_id FROM __options o WHERE o.feature_id=? AND (o.value LIKE "%'.$this->db->escape($value[0]).'%" '.$set_filter.')) ', $feature_id);
+            }
+        }
 
         // Фильтр с типом "Слайдер-диапазон"
         if(isset($filter['features_range']) && !empty($filter['features_range']))
@@ -190,16 +226,16 @@ class Products extends Simpla
                 $features_filter .= $this->db->placehold(' AND p.id in (SELECT o.product_id FROM __options o WHERE o.feature_id=? ',$feature_id);
 
                 if(isset($val['min']))
-                    $features_filter .= $this->db->placehold(' AND o.value >= ?', $this->db->escape(trim($val['min'])));
+                    $features_filter .= $this->db->placehold(" AND o.value >= ?", (float) $this->db->escape(trim($val['min'])));
 
                 if(isset($val['max']))
-                    $features_filter .= $this->db->placehold(' AND o.value <= ?', $this->db->escape(trim($val['max'])));
+                    $features_filter .= $this->db->placehold(' AND o.value <= ?', (float) $this->db->escape(trim($val['max'])));
 
                 $features_filter .= $this->db->placehold(')');
             }
         }
 
-		$query = "SELECT  
+        $query = "SELECT
 					p.id,
 					p.url,
 					p.brand_id,
@@ -218,9 +254,11 @@ class Products extends Simpla
 					p.likes,
 					b.name as brand,
 					b.url as brand_url,					
-					GROUP_CONCAT(pcat.category_id) as category_ids
+					GROUP_CONCAT(DISTINCT pcat.category_id) as category_ids
+					$select
 				FROM __products p
 				$variant_join		
+				$join
 				$category_id_filter 
 				LEFT JOIN __brands b ON p.brand_id = b.id
 				LEFT JOIN __products_categories as pcat ON pcat.product_id = p.id
@@ -354,9 +392,9 @@ class Products extends Simpla
         if(isset($filter['price']))
         {
             if(!empty($filter['price']['min']))
-                $price_filter .= $this->db->placehold(' AND pv.price >= ? ', $this->db->escape(trim($filter['price']['min'])));
+                $price_filter .= $this->db->placehold(' AND pv.price >= ? ', (float) $this->db->escape(trim($filter['price']['min'])));
             if(!empty($filter['price']['max']))
-                $price_filter .= $this->db->placehold(' AND pv.price <= ? ', $this->db->escape(trim($filter['price']['max'])));
+                $price_filter .= $this->db->placehold(' AND pv.price <= ? ', (float) $this->db->escape(trim($filter['price']['max'])));
             $variant_join = 'LEFT JOIN __variants pv ON pv.product_id = p.id';
         }
 
@@ -365,21 +403,17 @@ class Products extends Simpla
         {
             foreach($filter['features'] as $feature_id => $value)
             {
-                if(count($value) == 1)
-                {
-                    $value = array_values($value);
-                    $features_filter .= $this->db->placehold(' AND p.id in (SELECT o.product_id FROM __options o WHERE o.feature_id=? AND o.value LIKE "%'.$this->db->escape($value[0]).'%" ) ', $feature_id);
-                }
-                else
-                {
-                    $set_filter = '';
-                    foreach($value as $key => $val)
-                    {
-                        $set_filter .= 'OR value LIKE "%'.$this->db->escape($val).'%"';
-                    }
+                $value = array_values($value);
 
-                    $features_filter .= $this->db->placehold(' AND p.id in (SELECT o.product_id FROM __options o WHERE o.feature_id=? AND o.value LIKE "%'.$this->db->escape($value[0]).'%" '.$set_filter.') ', $feature_id);
+                $set_filter = '';
+                if(count($value) > 1) {
+                    foreach ($value as $key => $val) {
+                        if ($key == 0) { continue; }
+                        $set_filter .= 'OR o.value LIKE "%' . $this->db->escape($val) . '%"';
+                    }
                 }
+
+                $features_filter .= $this->db->placehold(' AND p.id in (SELECT o.product_id FROM __options o WHERE o.feature_id=? AND (o.value LIKE "%'.$this->db->escape($value[0]).'%" '.$set_filter.')) ', $feature_id);
             }
         }
 
@@ -392,10 +426,10 @@ class Products extends Simpla
                 $features_filter .= $this->db->placehold(' AND p.id in (SELECT o.product_id FROM __options o WHERE o.feature_id=? ',$feature_id);
 
                 if(isset($val['min']))
-                    $features_filter .= $this->db->placehold(' AND o.value >= ?', $this->db->escape(trim($val['min'])));
+                    $features_filter .= $this->db->placehold(' AND o.value >= ?', (float) $this->db->escape(trim($val['min'])));
 
                 if(isset($val['max']))
-                    $features_filter .= $this->db->placehold(' AND o.value <= ?', $this->db->escape(trim($val['max'])));
+                    $features_filter .= $this->db->placehold(' AND o.value <= ?', (float) $this->db->escape(trim($val['max'])));
 
                 $features_filter .= $this->db->placehold(')');
             }
@@ -422,6 +456,48 @@ class Products extends Simpla
 		$this->db->query($query);	
 		return $this->db->result('count');
 	}
+
+
+    /**
+     * @param  array $filter
+     * @return array
+     */
+    public function get_products_compile($filter = array())
+    {
+        $products = array();
+
+        foreach ($this->get_products($filter) as $p) {
+            $products[$p->id] = $p;
+        }
+        if (!empty($products)) {
+            $products_ids = array_keys($products);
+            foreach ($products as &$product) {
+                $product->variants = array();
+                $product->images = array();
+                $product->properties = array();
+            }
+
+            $variants = $this->variants->get_variants(array('product_id'=>$products_ids, 'in_stock'=>true));
+            foreach ($variants as $variant) {
+                $products[$variant->product_id]->variants[$variant->id] = $variant;
+            }
+
+            $images = $this->get_images(array('product_id'=>$products_ids));
+            foreach ($images as $image) {
+                $products[$image->product_id]->images[] = $image;
+            }
+
+            foreach ($products as &$product) {
+                $product->variant = reset($product->variants);
+
+                if (isset($product->images[0])) {
+                    $product->image = $product->images[0];
+                }
+            }
+        }
+
+        return $products;
+    }
 
 
 	/**
@@ -770,85 +846,5 @@ class Products extends Simpla
 		$this->db->query($query);
  
 		return $this->get_product((integer)$this->db->result('id'));	
-	}
-	
-	public function get_id_products($filter = array())
-	{   	 
-		// По умолчанию
-		$limit = 100;
-		$page = 1;
-		$category_id_filter = '';
-		$brand_id_filter = '';
-		$product_id_filter = '';
-		$features_filter = '';
-		$keyword_filter = '';
-		$visible_filter = '';
-		$is_featured_filter = '';
-		$discounted_filter = '';
-		$in_stock_filter = '';
-		$order = 'p.position DESC';
-		
-		$variant_join = '';
-
-		$sql_limit = $this->db->placehold(' LIMIT ?, ? ', ($page-1)*$limit, $limit);
-
-		if(!empty($filter['id']))
-			$product_id_filter = $this->db->placehold('AND p.id in(?@)', (array)$filter['id']);
-
-		if(!empty($filter['category_id']))
-			$category_id_filter = $this->db->placehold('INNER JOIN __products_categories pc ON pc.product_id = p.id AND pc.category_id in(?@)', (array)$filter['category_id']);
-
-		if(!empty($filter['brand_id']))
-			$brand_id_filter = $this->db->placehold('AND p.brand_id in(?@)', (array)$filter['brand_id']);
-
-		if(!empty($filter['in_stock']))
-			$in_stock_filter = $this->db->placehold('AND (SELECT 1 FROM __variants pv WHERE pv.product_id=p.id AND pv.price>0 AND (pv.stock IS NULL OR pv.stock>0) LIMIT 1) = ?', intval($filter['in_stock']));
-
-		if(!empty($filter['visible']))
-			$visible_filter = $this->db->placehold('AND p.visible=?', intval($filter['visible']));
-
-		if(!empty($filter['features']) && !empty($filter['features']))
-		{
-			foreach($filter['features'] as $feature=>$value) 
-			{
-				//Absorber 2014
-				$count_value = count($value);
-				if($count_value==1)
-				{
-					$features_filter .= $this->db->placehold('AND p.id in (SELECT product_id FROM __options WHERE feature_id=? AND value LIKE "%'.$this->db->escape($value[0]).'%" ) ', $feature);
-				}
-				else
-				{
-					$count_value = count($value)-1;
-					$set_filter = '';
-					for($i=1;$i<=$count_value;$i++)
-					{
-						$set_filter .= 'AND value LIKE "%'.$this->db->escape($value[$i]).'%"';
-					}
-					
-					$features_filter .= $this->db->placehold('AND p.id in (SELECT product_id FROM __options WHERE feature_id=? AND value LIKE "%'.$this->db->escape($value[0]).'%" '.$set_filter.') ', $feature);
-				}
-				
-			}
-		}
-
-		$query = "SELECT p.id
-				FROM __products p
-				$variant_join
-				$category_id_filter
-				LEFT JOIN __brands b ON p.brand_id = b.id
-				WHERE
-					1
-					$product_id_filter
-					$brand_id_filter
-					$features_filter
-					$in_stock_filter
-					$visible_filter
-				GROUP BY p.id";
-
-		$query = $this->db->placehold($query);
-		$this->db->query($query);
-
-		return $this->db->results();
 	}
 }

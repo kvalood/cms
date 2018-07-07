@@ -9,7 +9,7 @@ class Managers extends Simpla
 		'backup', 'stats', 'design', 'settings', 'currency', 'delivery', 'payment', 'managers', 'license',
 		'article', 'articlecat', 'articleadd', 'menu', 'slides');
 		
-	public $passwd_file = "admin/.passwd";
+	public $passwd_file = "simpla/.passwd";
 
 	public function __construct()
 	{

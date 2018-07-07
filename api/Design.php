@@ -293,7 +293,7 @@ class Design extends Simpla
 	}
 	
 		
-	public function api_plugin($params, &$smarty)
+	public function api_plugin($params, $smarty)
 	{
 		if(!isset($params['module']))
 			return false;
@@ -313,7 +313,7 @@ class Design extends Simpla
 	/**
 	* Вставляемы JS код в футер
 	*/
-    public function js_include($params, &$smarty) 
+    public function js_include($params, $smarty)
 	{
         if(isset($params['src'])) {
             $this->smarty->append('footer_code', '<script src="' . $params['src'] . '" type="text/javascript"></script>');

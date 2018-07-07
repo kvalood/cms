@@ -51,7 +51,7 @@
 		
 		//Создаем сообщение в админке, и отправляем его на почту. 
 		$send->ip = $_SERVER['REMOTE_ADDR'];
-		$send_id = $simpla->feedback->add_feedback($send);
+		$send_id = $simpla->feedbacks->add_feedback($send);
 		$simpla->notify->email_feedback_admin($send_id);
 	}		
 

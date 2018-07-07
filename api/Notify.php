@@ -200,10 +200,10 @@ class Notify extends Simpla
 
 	public function email_feedback_admin($feedback_id)
 	{ 
-			if(!($feedback = $this->feedback->get_feedback(intval($feedback_id))))
+			if(!($feedback = $this->feedbacks->get_feedback(intval($feedback_id))))
 				return false;
 
-			$this->design->assign('feedback', $feedback);
+			$this->design->assign('Feedbacks', $feedback);
 
 			// Отправляем письмо
 			$email_template = $this->design->fetch($this->config->root_dir.'design/'.$this->settings->theme.'/html/email/email_feedback_admin.tpl');

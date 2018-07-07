@@ -84,8 +84,29 @@ class Menu extends Simpla
 		$query = $this->db->placehold("SELECT * FROM __menu WHERE category=? $where ORDER BY position", intval($id));
 		$this->db->query($query);
 
-		return $this->db->results();		
+		$items = [];
+        foreach($this->db->results() as $item)
+            $items[$item->id] = $item;
+
+        //Создаем древовидное меню
+        return $this->getTree($items);
 	}
+
+	// Строим дерево для меню
+    private function getTree($dataset) {
+        $tree = array();
+
+        foreach ($dataset as $id => &$node) {
+            //Если нет вложений
+            if (!$node->parent_id){
+                $tree[$id] = &$node;
+            }else{
+                //Если есть потомки то перебераем массив
+                $dataset[$node->parent_id]->childs[$id] = &$node;
+            }
+        }
+        return $tree;
+    }
 	
 	//Получить пункт меню по ID/url
 	public function get_id($id)

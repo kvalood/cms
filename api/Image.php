@@ -309,8 +309,8 @@ class Image extends Simpla
 			$watermark_x = min(($dst_w-$owidth)*$watermark_offet_x/100, $dst_w); 
 			$watermark_y = min(($dst_h-$oheight)*$watermark_offet_y/100, $dst_h); 
 	
-			imagecopy($dst_img, $overlay, $watermark_x, $watermark_y, 0, 0, $owidth, $oheight);		
-			//imagecopymerge($dst_img, $overlay, $watermark_x, $watermark_y, 0, 0, $owidth, $oheight, $watermark_opacity*100); 
+			// imagecopy($dst_img, $overlay, $watermark_x, $watermark_y, 0, 0, $owidth, $oheight);
+			imagecopymerge($dst_img, $overlay, $watermark_x, $watermark_y, 0, 0, $owidth, $oheight, $watermark_opacity*100);
 			
 		}	
 				

@@ -23,7 +23,7 @@ empty_selected_category = 'Необходимо выбрать категори�
 file_upload_error = 'Ошибка загрузки файла'
 required_fields = 'Заполните обязательные поля'
 
-; admin/index.php?module=SettingsAdmin
+; simpla/index.php?module=SettingsAdmin
 [Настройки сайта]
 watermark_is_not_writable = 'Установите права на запись для файла'
 

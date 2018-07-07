@@ -156,7 +156,7 @@ class OrderView extends View
 		exit();
 	}
 	
-	public function checkout_form($params, &$smarty)
+	public function checkout_form($params, $smarty)
 	{
 		$module_name = preg_replace("/[^A-Za-z0-9]+/", "", $params['module']);
 

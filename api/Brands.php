@@ -24,6 +24,14 @@ class Brands extends Simpla
 		$category_id_filter = '';
 		$count = '';
 		$order = ' ORDER BY b.name';
+        $visible_filter = '';
+        $in_stock_filter = '';
+
+        if(isset($filter['in_stock']))
+            $in_stock_filter = $this->db->placehold('AND (SELECT count(*)>0 FROM __variants pv WHERE pv.product_id=p.id AND pv.price>0 AND (pv.stock IS NULL OR pv.stock>0) LIMIT 1) = ?', intval($filter['in_stock']));
+
+        if(isset($filter['visible']))
+            $visible_filter = $this->db->placehold('AND p.visible=?', intval($filter['visible']));
 
 		if(!empty($filter['category_id']))
 		{

@@ -44,7 +44,7 @@ if($c = $simpla->request->get('code'))
 	if($new_password = $simpla->request->post('new_password'))
 	{
 		// Файл с паролями
-		$passwd_file = $simpla->config->root_dir.'admin/.passwd';
+		$passwd_file = $simpla->config->root_dir.'simpla/.passwd';
 		
 		// Удаляем из сесси код, чтобы больше никто не воспользовался ссылкой
 		unset($_SESSION['admin_password_recovery_code']);
@@ -56,7 +56,7 @@ if($c = $simpla->request->get('code'))
 			print "
 				<h1>Восстановление пароля администратора</h1>
 				<p class='error'>
-				Файл /admin/.passwd недоступен для записи.
+				Файл /simpla/.passwd недоступен для записи.
 				</p>
 				<p>Вам нужно зайти по FTP и изменить права доступа к этому файлу, после чего повторить процедуру восстановления пароля.</p>
 			";
@@ -75,7 +75,7 @@ if($c = $simpla->request->get('code'))
 				Новый пароль установлен
 				</p>
 				<p>
-				<a href='".$simpla->root_url."/admin/index.php?module=ManagersAdmin'>Перейти в панель управления</a>
+				<a href='".$simpla->root_url."/simpla/index.php?module=ManagersAdmin'>Перейти в панель управления</a>
 				</p>
 			";
 		}

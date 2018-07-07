@@ -105,7 +105,7 @@ class View extends Simpla
 	}
 
 
-    public function get_menu_plugin($params, &$smarty)
+    public function get_menu_plugin($params, $smarty)
     {
         if(!empty($params['var']))
         {
@@ -125,7 +125,7 @@ class View extends Simpla
 	+ программный вывод УРЛ материалов.
 	Плагины для смарти
 	*/	
-	public function get_article_plugin($params, &$smarty)
+	public function get_article_plugin($params, $smarty)
 	{
 		if(!empty($params['var']))
 		{
@@ -145,13 +145,13 @@ class View extends Simpla
 	 * Плагины для смарти
 	 *
 	 */	
-	public function get_brands_plugin($params, &$smarty)
+	public function get_brands_plugin($params, $smarty)
 	{
 		if(!empty($params['var']))
 			$smarty->assign($params['var'], $this->brands->get_brands($params));
 	}
 	
-	public function get_browsed_products($params, &$smarty)
+	public function get_browsed_products($params, $smarty)
 	{
 		if(!empty($_COOKIE['browsed_products']))
 		{
@@ -183,7 +183,7 @@ class View extends Simpla
 	}
 	
 	
-	public function get_featured_products_plugin($params, &$smarty)
+	public function get_featured_products_plugin($params, $smarty)
 	{
 		if(!isset($params['visible']))
 			$params['visible'] = 1;
@@ -244,7 +244,7 @@ class View extends Simpla
 
 
     // Следующие товары из этой-же категории, если нет связных товаров.
-    public function get_category_products_plugin($params, &$smarty)
+    public function get_category_products_plugin($params, $smarty)
     {
         if(empty($params['limit']))
             $params['limit'] = 10;
@@ -305,7 +305,7 @@ class View extends Simpla
 		
 
 
-	public function get_new_products_plugin($params, &$smarty)
+	public function get_new_products_plugin($params, $smarty)
 	{
 		if(!isset($params['visible']))
 			$params['visible'] = 1;
@@ -366,7 +366,7 @@ class View extends Simpla
 	}
 	
 	
-	public function get_discounted_products_plugin($params, &$smarty)
+	public function get_discounted_products_plugin($params, $smarty)
 	{
 		if(!isset($params['visible']))
 			$params['visible'] = 1;
@@ -425,7 +425,7 @@ class View extends Simpla
 	}
 	
 	//Слайдер
-	public function get_banner_images_plugin($params,  &$smarty)
+	public function get_banner_images_plugin($params,  $smarty)
 	{
 		if(!empty($params['var']) AND !empty($params['banner_id'])) {
 

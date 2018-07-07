@@ -62,7 +62,7 @@ class ProductView extends View
 		else
 			$product->variant = reset($variants);
 					
-		$product->features = $this->features->get_product_options(['product_id'=>$product->id], ['visible'=>1]);
+		$product->features = $this->features->get_product_options(['product_id'=>$product->id]);
 
 
         // Принимаем комментарий

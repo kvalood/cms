@@ -1,0 +1,17 @@
+{
+  "vars": {},
+  "css": [
+    "buttons.less",
+    "button-groups.less",
+    "navs.less",
+    "pagination.less",
+    "alerts.less",
+    "dropdowns.less",
+    "tooltip.less"
+  ],
+  "js": [
+    "dropdown.js",
+    "tab.js"
+  ],
+  "customizerUrl": "http://getbootstrap.com/customize/?id=d00e1f8c833fe315c2be213ced8bc407"
+}

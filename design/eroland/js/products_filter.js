@@ -1,13 +1,84 @@
+// original - https://github.com/jquery/jquery-ui/blob/master/ui/widgets/slider.js
+// demo - https://jsfiddle.net/C6u3J/99/
+// Immediate function that creates a scope for our widget
+// declaration.
+(function( $ ) {
+
+    // The slider events we want to hijack and extend.
+    var events = [ "create", "start", "stop", "slide", "change" ];
+
+    // Start our slider widget extension.
+    $.widget( "app.slider", $.ui.slider, {
+
+        // This method gives the "create" event data. We need the "value"
+        // property here, which doesn't exist by default.
+        _getCreateEventData: function() {
+            return { value: this.value() };
+        },
+
+        // It's important to call _init() here instead of _create() since
+        // we're setting an option value. The "max" option should be the
+        // length of the "steps" array if it exists.
+        _init: function() {
+            var steps = this.options.steps;
+            if ( $.isArray( steps ) ) {
+                this.option( "max", steps.length - 1 );
+            }
+        },
+
+        _trigger: function( name, e, ui ) {
+
+            // The steps value array we want passed in the slider
+            // event data.
+            var steps = this.options.steps;
+
+            // If there's no "steps" option, do the default action.
+            if ( !$.isArray( steps ) ) {
+                return this._superApply( arguments );
+            }
+
+            // Is this an event we're interested in? Check the "events" array.
+            if ( $.inArray( name, events ) >= 0 ) {
+
+                // Call the default _trigger() implementation, using custom
+                // data. Specifically, the step value from the array.
+                return this._superApply([
+                    name,
+                    e,
+                    $.extend( ui, {
+                        stepValue: steps[ ui.value ]
+                    })
+                ]);
+            }
+
+            return this._superApply( arguments );
+        }
+    });
+})( jQuery );
+
+/**
+ * При нажатии вперед/назад в браузере, будем переходить на эту страницу.
+ */
+window.addEventListener('popstate', function(e) {
+    window.location = document.location;
+});
+
 $(function() {
 
-    var products_list   = $("#products_list"), // Список товаров
-        product_filter  = $("#product_filter"), // Блок с фильтром
-        slides_filter   = $('.slide_filter'), // Фильтр - слайдер диапазон
-        feature_id      = '.features_id', // Конкретное свойство по которому будет фильтрация
-        loader_filter   = '<div class="loader"></div>', // Спинер
-        page_pagination = product_filter.find("input[name='page']"); // Страница пагинации
+    var products_list       = $("#products_list"), // Список товаров
+        product_filter      = $("#product_filter"), // Блок с фильтром
+        pagination          = $("#pagination"), // Блок с пагинацией
+        page_pagination     = '', // Страница пагинации
+        pagination_more     = '', // если нажали на кнопку "показать еще" в пагинации
+        slides_filter       = $('.slide_filter'), // Фильтр - слайдер диапазон
+        feature_id          = '.features_id', // Конкретное свойство по которому будет фильтрация
+        loader_filter       = $('<div class="loader"></div>'), // Спинер
+        filter_sort         = ''; // Сортировка
 
-    //создаем слайдеры-диапазоны
+
+    /**
+     * создаем слайдеры-диапазоны
+     */
     $(document).ready(function() {
         if(slides_filter.length > 0) {
             for (var i = 1; i <= slides_filter.length; i++) {
@@ -19,18 +90,23 @@ $(function() {
     /**
      * Функция для получения данных о слайдере
      * @param object
+     * @return object {
+     *      min - string
+     *      max - string
+     * }
      */
     function get_slider_range_data(object) {
         var sd = {};
-            sd.obj     = $(object);
-            sd.slider  = sd.obj.find('.slider-range');
-            sd.min_obj = sd.obj.find('input[name$="[min]"]');
-            sd.max_obj = sd.obj.find('input[name$="[max]"]');
-            sd.el_name = sd.max_obj.attr('name').split('[max')[0];
-            sd.min     = sd.min_obj.attr('data-min');
-            sd.max     = sd.max_obj.attr('data-max');
-            sd.c_min   = parseFloat(sd.min_obj.val());
-            sd.c_max   = parseFloat(sd.max_obj.val());
+        sd.obj          = $(object);
+        sd.slider       = sd.obj.find('.slider-range');
+        sd.min_obj      = sd.obj.find('input[name$="[min]"]');
+        sd.max_obj      = sd.obj.find('input[name$="[max]"]');
+        sd.el_name      = sd.max_obj.attr('name').split('[max')[0];
+        sd.min          = sd.min_obj.attr('data-min');
+        sd.max          = sd.max_obj.attr('data-max');
+        sd.c_min        = parseFloat(sd.min_obj.val());
+        sd.c_max        = parseFloat(sd.max_obj.val());
+        sd.step_values  = sd.obj.attr('data-step-values');
 
         return sd;
     }
@@ -41,31 +117,40 @@ $(function() {
      */
     function create_slide(el) {
 
-        var slider_data = get_slider_range_data(el);
+        var slider_data = get_slider_range_data(el),
+            step_values = slider_data.step_values;
+
+        step_values = $.map(step_values.split(','), function(value){
+            return parseFloat(value);
+        });
 
         $(slider_data.slider).slider({
             range: true,
+            /*
             min: parseFloat(slider_data.min),
             max: parseFloat(slider_data.max),
             step: (slider_data.min.indexOf(".") != -1 || (slider_data.max.indexOf(".") != -1)) ? 0.01 : 1,
             values: [ slider_data.c_min, slider_data.c_max ],
+            */
+            steps: step_values,
+            values: [ step_values.indexOf(slider_data.c_min), step_values.indexOf(slider_data.c_max) ],
             stop: function(event, ui) {
                 get_data(slider_data.obj);
             },
             slide: function( event, ui ) {
+                /*
                 $(slider_data.min_obj).val(ui.values[0]);
-                $(slider_data.max_obj).val(ui.values[1]);
+                $(slider_data.max_obj).val(sui.values[1]);
+                */
+                $(slider_data.min_obj).val(step_values[ui.values[0]]);
+                $(slider_data.max_obj).val(step_values[ui.values[1]]);
             }
         });
     }
 
     /**
-     * Сбросить номер страницы
-     */
-    function reset_page() {
-
-    }
-
+     * Запуск фильтрации
+      */
     // Запускаем фильтр при ползунках и смене чекбоксов.
     $(document).on('click', '.check_data', function(){
         get_data($(this));
@@ -77,13 +162,9 @@ $(function() {
     });
 
     // Запускаем фильтр если изменился инпут
-    $(document).on('change', '.slide_filter input[type="text"]', function(){
-        var obj = $(this),
-            parent = obj.closest('.slide_filter'),
-            min = parent.find('#min').val(),
-            max = parent.find('#max').val();
-
-        $(this).closest('.slide_filter').find('#slider').slider('option', 'values', [min, max]);
+    $(document).on('change', 'input[name$="[min]"], input[name$="[max]"]', function(){
+        var slider_data = get_slider_range_data($(this).closest(slides_filter));
+        slider_data.slider.slider('option', 'values', [slider_data.c_min, slider_data.c_max]);
         get_data($(this));
     });
 
@@ -121,14 +202,17 @@ $(function() {
             }
         }
 
-        console.log(page_pagination.val());
-
-        if(page_pagination.val()) {
-            arr.page = page_pagination.val();
-            page_pagination.val('');
+        // Пагинация
+        if(page_pagination) {
+            arr.page = page_pagination;
+            page_pagination = '';
         }
 
-        console.log(arr);
+        // Сортировка
+        if(filter_sort) {
+            arr.sort = filter_sort;
+            filter_sort = ''
+        }
 
         // Запрашиваем данные.
         $.ajax({
@@ -138,8 +222,6 @@ $(function() {
 
                 var data = JSON.parse(filter_data);
 
-
-                console.warn(data);
                 // Показываем количество найденых товаров.
                 var filter_search_count = $('.filter_search_count');
                 filter_search_count.remove();
@@ -168,12 +250,25 @@ $(function() {
                     }
                 }
 
-
                 // Меняем УРЛ
                 history.pushState(null, null, location.pathname + '?' + data.url);
-                //history.replaceState(null, null, location.pathname+data.url);
 
-                products_list.html(data.product_list);
+                // Прокручиваем ввверх списка с товарами
+                if(arr.page && !pagination_more)
+                    $('html, body').animate({scrollTop: products_list.offset().top - 100},250);
+
+                // Если кнопка "показать еще", добавляем
+                if(pagination_more) {
+                    products_list.append(data.product_list);
+                    pagination_more = 0;
+                } else {
+                    products_list.html(data.product_list);
+                }
+
+                pagination.html(data.pagination);
+
+                // remove loader spiner
+                $(loader_filter).remove();
             }
         });
     }
@@ -201,10 +296,37 @@ $(function() {
     // Axaj пагинация
     $(document).on('click', '.pagination a', function(e){
         e.preventDefault();
-        $('html, body').animate({scrollTop: products_list.offset().top - 100},250);
-        page_pagination.val($(this).attr('data-page'));
+        page_pagination = $(this).attr('data-page');
+        if($(this).is('#pagination_more')) {
+            pagination_more = 1;
+        }
         get_data();
     });
+
+    /**
+     * Axaj sorting
+      */
+    // for link
+    $(document).on('click change', '[data-filter-sort]', function(e){
+
+        var data_toggle = $(this).attr('data-filter-toggle'),
+            data_sort   = $(this).val() ? $(this).val() : $(this).attr('data-filter-sort');
+
+        filter_sort = data_sort;
+
+        $('[data-filter-sort-this]').removeAttr('data-filter-sort-this');
+        $(this).attr('data-filter-sort-this', '');
+
+        if(data_toggle) {
+            $(this).attr({
+                'data-filter-toggle': filter_sort,
+                'data-filter-sort': data_toggle
+            });
+        }
+
+        get_data();
+    });
+
 
     // Склонение численных
     function declOfNum(number, titles) {

@@ -1,0 +1,5 @@
+AddType application/octet-stream csv
+AuthName "Login"
+AuthType Basic
+AuthUserFile C:\SERVER\domains\cms/simpla/.passwd
+require valid-user

@@ -1,0 +1,33 @@
+/** Элементы управления в списке (категорий, товаров, заказов итд) **/
+.control a{
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    width: 22px;
+    height: 32px;
+    margin: 0 2px;
+    text-align: center;
+    line-height: 32px;
+    font-size: 15px;
+}
+.control a:before{
+    font-family: 'icomoon';
+}
+
+/* Выключенные/не видимые поля */
+.control a.enable:not(.on):before,
+.control a.visible:not(.on):before,
+.control a.in_filter:before,
+.control a.in_yandex:before{
+    color: #dbdbdb !important;
+}
+
+.control a.in_filter:before{content: '\f0b0';color:#4297CF}
+.control a.in_yandex:before{content: '\e901';color: #FF0000;}
+.control a.delete:before{content: '\f00d';color: #ff1931 !important}
+.control a.enable:before,
+.control a.visible:before{
+    content: "\f06e";color:#4297CF
+}
+
+.control a.preview:before{content: "\f08e";color:#a9a9a9}

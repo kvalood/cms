@@ -1,0 +1,53 @@
+.listObjects{}
+
+.listHeader{
+    border-bottom: 1px solid #d8d8d8;
+}
+.listBody{
+    position: relative;
+}
+.listItem{
+    overflow: hidden;
+    cursor: move;
+    position: relative;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    width: 100%;
+}
+.listItem > div{
+    border-top: 1px solid #e5eaef;
+    overflow: hidden;
+}
+.listItem > div:hover{
+    background: #eef3f8;
+}
+.listItem > div > *{
+    display: inline-block;
+    vertical-align: middle;
+}
+.listItem > div > input[type="checkbox"]{
+    margin-right: 5px;
+    cursor: pointer;
+}
+.listItem > div > a:first-of-type:hover{
+    text-decoration: underline;
+}
+.listItem > div > a:first-of-type{
+    padding: 6px 0 4px 0;
+    height: 32px;
+}
+.listItem .control{
+    float: right;
+}
+.subItem > div,
+.listItem .subItem > div{
+
+}
+.clear_state{
+    height: 32px;
+    background: #E1F1E8 !important;
+    border: none !important;
+}
+
+
+

@@ -64,35 +64,32 @@ class ProductsView extends View
             $features_ids = array_keys($all_features);
             $options = $this->features->get_options(['feature_id' => $features_ids, 'category_id' => $category->children]);
 
-            /*
-            // Добавляем значения свойств от товаров в СВОЙСТВО
-            foreach ($options as $option) {
-                if (isset($features[$option->feature_id])) {
-                    $features[$option->feature_id]->options[] = $option;
+            // Перебираем все свойства
+            $features = [];
+            foreach($options as $key => $o) {
+                if (isset($all_features[$o->feature_id])) {
+
+                    // Мультисвойства
+                    // if($exp = explode(',',$o->value))
+                    //    foreach(array_diff($exp, array('')) as $v)
+                    //        $features[$o->feature_id][] = trim($v);
+                    // else
+
+                    if ($all_features[$o->feature_id]->type == 2) {
+                        $features[$o->feature_id][] = preg_replace("/[^0-9-.,]/", '', str_replace(',', '.', $o->value));
+                    } else {
+                        $features[$o->feature_id][] = $o->value;
+                    }
                 }
             }
-            */
 
-            $features = [];
-            foreach($options as $key => $o)
-            {
-                if(isset($all_features[$o->feature_id]))
-                {
-                    // Мультисвойства
-                    /*if($exp = explode(',',$o->value))
-                        foreach(array_diff($exp, array('')) as $v)
-                            $features[$o->feature_id][] = trim($v);
-                    else*/
-                        $features[$o->feature_id][] = $o->value;
+            foreach ($features as $feature_id => $feature) {
+                asort($feature);
+                $all_features[$feature_id]->values = array_unique(array_values($feature));
 
-                    $all_features[$o->feature_id]->value = array_unique($features[$o->feature_id]);
-
-                    // Добавляем минимальное и максимальное значение для группы слайдера
-                    if($all_features[$o->feature_id]->type == 2)
-                    {
-                        $all_features[$o->feature_id]->min = min($all_features[$o->feature_id]->value);
-                        $all_features[$o->feature_id]->max = max($all_features[$o->feature_id]->value);
-                    }
+                if ($all_features[$o->feature_id]->type == 2) {
+                    $all_features[$o->feature_id]->min = min($all_features[$feature_id]->values);
+                    $all_features[$o->feature_id]->max = max($all_features[$feature_id]->values);
                 }
             }
         }
@@ -119,8 +116,8 @@ class ProductsView extends View
                             // Соответствие порядкового номера и значения
                             $valent = [];
                             foreach (array_values(array_diff(explode(',', $f), [''])) as $v) {
-                                if (isset($all_features[$feature_name]->value[$v])) {
-                                    $valent[$v] = $all_features[$feature_name]->value[$v];
+                                if (isset($all_features[$feature_name]->values[$v])) {
+                                    $valent[$v] = $all_features[$feature_name]->values[$v];
                                 }
                             }
 
@@ -130,16 +127,16 @@ class ProductsView extends View
                             break;
 
                         // Фильтр с типом "Слайдер-диапазон"
-                        // значение вида 21=50-100
+                        // значение вида 21=50-100 или 2.15-2.45
                         case '2':
 
                             $val = explode('-', $f);
 
                             if (!empty($val[0]))
-                                $filter['features_range'][$feature_name]['min'] = preg_replace('~\D+~', '', $val[0]);
+                                $filter['features_range'][$feature_name]['min'] = preg_replace("/[^0-9-.,]/", '', $val[0]);
 
                             if (!empty($val[1]))
-                                $filter['features_range'][$feature_name]['max'] = preg_replace('~\D+~', '', $val[1]);
+                                $filter['features_range'][$feature_name]['max'] = preg_replace("/[^0-9-.,]/", '', $val[1]);
 
                             break;
                     }
@@ -151,10 +148,10 @@ class ProductsView extends View
                     $val = explode('-', $f);
 
                     if (!empty($val[0]))
-                        $filter['price']['min'] = preg_replace('~\D+~', '', $val[0]);
+                        $filter['price']['min'] = preg_replace('/[^0-9.]/', '', $val[0]);
 
                     if (!empty($val[1]))
-                        $filter['price']['max'] = preg_replace('~\D+~', '', $val[1]);
+                        $filter['price']['max'] = preg_replace('/[^0-9.]/', '', $val[1]);
                 }
 
                 // Фильтр по бренду
@@ -171,13 +168,24 @@ class ProductsView extends View
         $price_filter['visible'] = $filter['visible'];
 
         if(isset($category->id))
-            $price_filter['category_id'] = $category->id;
+            $price_filter['category_id'] = $category->children;
         elseif(isset($filter['keyword']))
             $price_filter['keyword'] = $filter['keyword'];
 
+        /*
         $price_cat = $this->products->max_min_products($price_filter);
         $price_cat->min_price = ceil($price_cat->min_price);
         $price_cat->max_price = ceil($price_cat->max_price);
+        */
+
+        $prices_step_values = array_map(function($line) {
+            return round($line, 2);
+        }, $this->products->prices_products($price_filter));
+
+        $price_cat = new stdClass();
+        $price_cat->min_price = min($prices_step_values);
+        $price_cat->max_price = max($prices_step_values);
+        $price_cat->step_values = $prices_step_values;
         $this->design->assign('price_cat', $price_cat);
 
 
@@ -241,6 +249,13 @@ class ProductsView extends View
         // Товары
         $products = $this->products->get_products_compile($filter);
 
+        // Выбираем бренды, они нужны нам в шаблоне
+        if (!empty($category)) {
+            $brands = $this->brands->get_brands(array('category_id'=>$category->children, 'visible'=>1));
+            $category->brands = $brands;
+        }
+
+
         /**
          * Отдаем available options
          * все опции свойств идут в формате
@@ -250,53 +265,68 @@ class ProductsView extends View
          *      max/min
          */
         $available_options = [];
-        if (!empty($category) && $all_features) {
+        if (!empty($category)) {
 
             $filter['limit'] = $products_count;
+            unset($filter['page']);
             $all_products = $this->products->get_products_compile($filter);
 
             if ($all_products) {
                 $av_options = [];
 
-                foreach($as_optins = $this->features->get_options(['product_id' => array_keys($all_products), 'category_id' => $category->children, 'feature_id' => $features_ids]) as $o) {
+                if ($all_features) {
 
-                    if ($all_features[$o->feature_id]->type == 1) {
-                        $found_id = array_search($o->value, $all_features[$o->feature_id]->value);
-                        $av_options[$o->feature_id]->value[$found_id] = $o->value;
-                        // $av_options[$o->feature_id]->count = $o->count;
+                    foreach ($as_optins = $this->features->get_options(['product_id' => array_keys($all_products), 'category_id' => $category->children, 'feature_id' => $features_ids]) as $o) {
+
+                        if ($all_features[$o->feature_id]->type == 1) {
+                            $found_id = array_search($o->value, $all_features[$o->feature_id]->values);
+                            $av_options[$o->feature_id]->value[$found_id] = $o->value;
+                            // $av_options[$o->feature_id]->count = $o->count;
+                        }
+
+                        // Добавляем минимальное и максимальное значение для группы слайдера
+                        if ($all_features[$o->feature_id]->type == 2) {
+                            $o->value = preg_replace("/[^0-9-.,]/", '', str_replace(',', '.', $o->value));
+                            $av_options[$o->feature_id]->value[] = $o->value;
+                            $available_options[$o->feature_id]['min'] = min($av_options[$o->feature_id]->value);
+                            $available_options[$o->feature_id]['max'] = max($av_options[$o->feature_id]->value);
+                        }
                     }
 
-                    // Добавляем минимальное и максимальное значение для группы слайдера
-                    if ($all_features[$o->feature_id]->type == 2) {
-                        $av_options[$o->feature_id]->value[] = $o->value;
-                        $available_options[$o->feature_id]['min'] = min($av_options[$o->feature_id]->value);
-                        $available_options[$o->feature_id]['max'] = max($av_options[$o->feature_id]->value);
-                    }
-                }
-
-                foreach($all_features as $feature_key => $feature) {
-
-                    // Если клиент фильтрует по определенному свойству, то это свойство выключаем из фильтра
-                    if ($feature->type == 1) {
-                        if (!empty($feature->value)) {
-                            foreach ($feature->value as $o_key => $o_val) {
-                                if (isset($av_options[$feature_key]->value[$o_key]) OR isset($filter['features'][$feature_key])) {
-                                    $available_options[$feature_key][$o_key] = true;
-                                } else {
-                                    $available_options[$feature_key][$o_key] = false;
+                    // Собираем единый фильтр (существующие и не существующие опции
+                    foreach ($all_features as $feature_key => $feature) {
+                        // Если клиент фильтрует по определенному свойству, то это свойство выключаем из фильтра
+                        if ($feature->type == 1) {
+                            if (!empty($feature->value)) {
+                                foreach ($feature->value as $o_key => $o_val) {
+                                    if (isset($av_options[$feature_key]->value[$o_key]) OR isset($filter['features'][$feature_key])) {
+                                        $available_options[$feature_key][$o_key] = true;
+                                    } else {
+                                        $available_options[$feature_key][$o_key] = false;
+                                    }
                                 }
                             }
                         }
                     }
                 }
 
-                // Собираем единый фильтр (существующие и не существующие параметры
+                // то-же самое делаем для брендов
+                if($brands) {
+                    $available_brands = [];
+                    foreach ($all_products as $ap) {
+                        $available_brands[$ap->brand_id] = true;
+                    }
+                    foreach ($brands as $brand) {
+                        if (isset($filter['brand_id']) OR isset($available_brands[$brand->id])) {
+                            $available_options['brands'][$brand->id] = true;
+                        } else {
+                            $available_options['brands'][$brand->id] = false;
+                        }
+                    }
+                }
 
                 $this->design->assign('available_options', $available_options);
             }
-
-            //dump($available_options);
-            //dump($all_features);
 
             $this->design->assign('features', $all_features);
 
@@ -317,18 +347,14 @@ class ProductsView extends View
         // ajax запрос, пагинация, фильтр, сортировка
         if($this->request->ajax()) {
             $result->url['page'] = $current_page;
+            $result->url['sort'] = $filter['sort'];
             $result->count = $products_count;
             $result->product_list = $this->design->fetch('products_list.tpl');
+            $result->pagination = $this->design->fetch('pagination.tpl');
             $result->available_options = $available_options;
             $result->url = urldecode(http_build_query($result->url));
             return json_encode($result);
             exit();
-        }
-
-        // Выбираем бренды, они нужны нам в шаблоне
-        if (!empty($category)) {
-            $brands = $this->brands->get_brands(array('category_id'=>$category->children, 'visible'=>1));
-            $category->brands = $brands;
         }
 
         // Устанавливаем мета-теги в зависимости от запроса
